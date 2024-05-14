@@ -30,7 +30,7 @@ tf.compat.v1.app.flags.DEFINE_bool("alt_vel", False, "Whether to use linear velo
 tf.compat.v1.app.flags.DEFINE_bool("color", False, "Whether images are rbg or grayscale.")
 tf.compat.v1.app.flags.DEFINE_integer("datapoints", 0, "How many datapoints from the dataset to use. \
                                               Useful for measuring data efficiency. default=0 uses all data.")
-tf.compat.v1.app.flags.DEFINE_string("data_dir", "data/datasets",
+tf.compat.v1.app.flags.DEFINE_string("data_dir", "../../data/datasets",
                                      "The path to the directory containing the experiments.")
 
 FLAGS = tf.compat.v1.app.flags.FLAGS

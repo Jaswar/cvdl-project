@@ -39,6 +39,8 @@ def fill_args(args):
 
 
 def generate_dataset(args):
+    assert args.experiment in default_experiment_args
+
     dataset_path = os.path.join(args.dest, f'{args.experiment}')
     generator = {'pendulum': generate_pendulum_sequence,
                  'pendulum_scale': generate_pendulum_scale_sequence,
