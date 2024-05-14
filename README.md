@@ -4,8 +4,17 @@
 
 ## Prerequisites
 
-The packages that need to be installed are given in the `requirements.txt` file. Not all packages are however 
-required to generate datasets. The only required packages for that are: `numpy`, `matplotlib`, and `scikit-image`.
+To install only the packages required for generating datasets, run the following (preferably in a virtual environment):
+
+```shell
+pip install -r requirements_datasets.txt
+```
+
+If you wish to install the packages required for running the models as well, run the following:
+
+```shell
+pip install -r requirements_all.txt
+```
 
 ## Generating datasets
 
@@ -25,3 +34,11 @@ The instructions for running the model can be found in the `README.md` file in t
 
 Please note that the Physics-as-Inverse-Graphics model also requires the path to where the datasets are located. This can
 be specified using the flag `--data_dir=<path>`. The default path is `../../data/datasets/`.
+
+## Credits
+
+Physics-as-Inverse-Graphics:
+
+ - Original paper: https://arxiv.org/abs/1905.11169
+ - Original code: https://github.com/seuqaj114/paig
+ - Tensorflow 2 implementation: https://github.com/Alejandro-neuro/paig_reproducibility

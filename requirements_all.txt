@@ -10,4 +10,3 @@ pytest
 scikit-image
 silence_tensorflow
 moviepy
-scikit-image
