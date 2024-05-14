@@ -30,6 +30,8 @@ tf.compat.v1.app.flags.DEFINE_bool("alt_vel", False, "Whether to use linear velo
 tf.compat.v1.app.flags.DEFINE_bool("color", False, "Whether images are rbg or grayscale.")
 tf.compat.v1.app.flags.DEFINE_integer("datapoints", 0, "How many datapoints from the dataset to use. \
                                               Useful for measuring data efficiency. default=0 uses all data.")
+tf.compat.v1.app.flags.DEFINE_string("data_dir", "data/datasets",
+                                     "The path to the directory containing the experiments.")
 
 FLAGS = tf.compat.v1.app.flags.FLAGS
 
@@ -97,7 +99,7 @@ if __name__ == "__main__":
         data_iterators = get_iterators(
                               os.path.join(
                                   os.path.dirname(os.path.realpath(__file__)), 
-                                  "../data/datasets/%s"%data_file), conv=True, datapoints=FLAGS.datapoints)
+                                  os.path.join(FLAGS.data_dir, data_file)), conv=True, datapoints=FLAGS.datapoints)
         network.get_data(data_iterators)
         network.train(FLAGS.epochs, FLAGS.batch_size, FLAGS.save_every_n_epochs, FLAGS.eval_every_n_epochs,
                     FLAGS.print_interval, FLAGS.debug)
@@ -116,7 +118,7 @@ if __name__ == "__main__":
     data_iterators = get_iterators(
                           os.path.join(
                               os.path.dirname(os.path.realpath(__file__)), 
-                              "../data/datasets/%s"%test_data_file), conv=True, datapoints=FLAGS.datapoints)
+                              os.path.join(FLAGS.data_dir, test_data_file)), conv=True, datapoints=FLAGS.datapoints)
     network.get_data(data_iterators)
     network.train(0, FLAGS.batch_size, FLAGS.save_every_n_epochs, FLAGS.eval_every_n_epochs,
                 FLAGS.print_interval, FLAGS.debug)
