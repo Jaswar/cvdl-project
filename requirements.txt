@@ -1,0 +1,12 @@
+tensorflow==2.15.0
+Pillow
+requests
+scipy
+six
+matplotlib
+tinydb
+pytest
+scikit-image
+silence_tensorflow
+moviepy
+scikit-image
