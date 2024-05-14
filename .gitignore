@@ -1,6 +1,7 @@
 venv/
 .venv/
 .idea/
+**__pycache__/
 
 # need to ignore each folder separately to then be able to maintain the structure with .gitkeep
 # some datasets are from the physics-as-inverse-graphics paper
