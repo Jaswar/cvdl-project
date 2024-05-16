@@ -8,7 +8,7 @@ from pprint import pprint
 import inspect
 
 from nn.network.base import BaseNet, OPTIMIZERS
-from nn.network.cells import bouncing_ode_cell, spring_ode_cell, gravity_ode_cell, pendulum_cell, pendulum_scale_cell, pendulum_intensity_cell
+from nn.network.cells import bouncing_ode_cell, spring_ode_cell, gravity_ode_cell, pendulum_cell, pendulum_scale_cell, pendulum_intensity_cell, sliding_block_cell
 from nn.network.stn import stn
 from nn.network.blocks import unet, shallow_unet, variable_from_network
 from nn.utils.misc import log_metrics
@@ -27,6 +27,7 @@ CELLS = {
     "pendulum_cell": pendulum_cell,
     "pendulum_scale_cell": pendulum_scale_cell,
     "pendulum_intensity_cell": pendulum_intensity_cell,
+    'sliding_block_cell': sliding_block_cell,
     "lstm": tf.nn.rnn_cell.LSTMCell
 }
 
@@ -41,6 +42,7 @@ COORD_UNITS = {
     "pendulum": 2,
     'pendulum_scale': 2,
     'pendulum_intensity': 2,
+    'sliding_block': 4,
 }
 
 class PhysicsNet(BaseNet):
@@ -196,7 +198,8 @@ class PhysicsNet(BaseNet):
                     else:
                         h = tf.layers.dense(h, 1, activation=None)
                     h = tf.concat(tf.split(h, self.n_objs, 0), axis=1)
-                    # h = tf.tanh(h)*(self.conv_input_shape[0]/2)+(self.conv_input_shape[0]/2)
+                    if 'pendulum' not in self.task:
+                        h = tf.tanh(h)*(self.conv_input_shape[0]/2)+(self.conv_input_shape[0]/2)
                 else:
                     h = inp
                     h = unet(h, 16, self.n_objs, upsamp=True)
@@ -214,7 +217,8 @@ class PhysicsNet(BaseNet):
                     h = tf.layers.dense(h, 200, activation=tf.nn.relu)
                     h = tf.layers.dense(h, 2, activation=None)
                     h = tf.concat(tf.split(h, self.n_objs, 0), axis=1)
-                    # h = tf.tanh(h)*(self.conv_input_shape[0]/2)+(self.conv_input_shape[0]/2)
+                    if 'pendulum' not in self.task:
+                        h = tf.tanh(h)*(self.conv_input_shape[0]/2)+(self.conv_input_shape[0]/2)
                 return h
 
     def vel_encoder(self, inp, scope=None, reuse=tf.compat.v1.AUTO_REUSE):
