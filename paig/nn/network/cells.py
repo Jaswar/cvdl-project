@@ -107,6 +107,32 @@ class pendulum_intensity_cell(ode_cell):
         intensity = (tf.exp(self.c) - self.length) ** 2 / (tf.exp(self.c) - d) ** 2
         return intensity
 
+
+class sliding_block_cell(ode_cell):
+    def build(self, inputs_shape):
+        if inputs_shape[-1] is None:
+            raise ValueError("Expected inputs.shape[-1] to be known, saw shape: %s"
+                                % str(inputs_shape))
+
+        input_depth = inputs_shape[-1]
+        h_depth = self._num_units
+        assert h_depth == input_depth
+
+        self.dt = self.add_variable("dt_x", shape=[], initializer=tf.constant_initializer(0.3), trainable=False)
+        self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
+        self.inclination = self.add_variable("inclination", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
+        self.friction = self.add_variable("friction", shape=[], initializer=tf.constant_initializer(0.0), trainable=True)
+        self.cutoff = self.add_variable("cuttoff", shape=[], initializer=tf.constant_initializer(0.0), trainable=True)
+        self.built = True
+
+    def call(self, poss, vels):
+        for _ in range(10):
+            acc = self.g * (tf.math.sin(self.inclination) - self.friction * tf.math.cos(self.inclination))
+            vels = vels + self.dt / 10 * acc
+            poss = poss + self.dt / 10 * vels
+            # poss = tf.math.minimum(self.cutoff, poss)  # mix width and img size into self.cutoff
+        return poss, vels
+
 class bouncing_ode_cell(ode_cell):
     """ Assumes there are 2 objects """
 

@@ -30,7 +30,7 @@ default_experiment_args = {
         'proj_dist': 20.0,
     },
     'sliding_block': {
-        'friction': 0.1,
+        'friction': 0.2,
         'inclination': np.pi / 8,
         'g': 9.81,
         'width': 8.0,
@@ -216,7 +216,6 @@ def generate_sliding_block_sequence(args):
             acc = args.g * (np.sin(args.inclination) - args.friction * np.cos(args.inclination))
             vel = vel + args.dt / args.ode_steps * acc
             x = x + args.dt / args.ode_steps * vel
-            x = min(args.img_size - args.width, x)
 
     return sequence, xs, velocities
 
