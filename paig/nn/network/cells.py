@@ -26,13 +26,13 @@ class pendulum_cell(ode_cell):
 
         self.dt = self.add_variable("dt_x", shape=[], initializer=tf.constant_initializer(0.3), trainable=False)
         self.length = self.add_variable("length", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
-        self.mass = self.add_variable("mass", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
+        self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
         self.built = True
 
     def call(self, poss, vels):
         for i in range(10):
-            F = -self.mass * 10 * tf.sin(poss)
-            vels = vels + self.dt / 10 * F / self.length  # calculate the angular velocity
+            acc = -self.g * tf.sin(poss)
+            vels = vels + self.dt / 10 * acc / self.length  # calculate the angular velocity
             poss = poss + self.dt / 10 * vels
         return poss, vels
 
@@ -49,7 +49,7 @@ class pendulum_scale_cell(ode_cell):
 
         self.dt = self.add_variable("dt_x", shape=[], initializer=tf.constant_initializer(0.3), trainable=False)
         self.length = self.add_variable("length", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
-        self.mass = self.add_variable("mass", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
+        self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
         self.f = self.add_variable("focal", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
         self.c = self.add_variable("np_dist", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
         self.r = self.add_variable("radius", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
@@ -57,8 +57,8 @@ class pendulum_scale_cell(ode_cell):
 
     def call(self, poss, vels):
         for i in range(10):
-            F = -self.mass * 10 * tf.sin(poss)
-            vels = vels + self.dt / 10 * F / self.length  # calculate the angular velocity
+            acc = -self.g * tf.sin(poss)
+            vels = vels + self.dt / 10 * acc / self.length  # calculate the angular velocity
             poss = poss + self.dt / 10 * vels
         return poss, vels
 
@@ -87,14 +87,14 @@ class pendulum_intensity_cell(ode_cell):
 
         self.dt = self.add_variable("dt_x", shape=[], initializer=tf.constant_initializer(0.3), trainable=False)
         self.length = self.add_variable("length", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
-        self.mass = self.add_variable("mass", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
+        self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
         self.c = self.add_variable("np_dist", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
         self.built = True
 
     def call(self, poss, vels):
         for i in range(10):
-            F = -self.mass * 10 * tf.sin(poss)
-            vels = vels + self.dt / 10 * F / self.length  # calculate the angular velocity
+            acc = -self.g * tf.sin(poss)
+            vels = vels + self.dt / 10 * acc / self.length  # calculate the angular velocity
             poss = poss + self.dt / 10 * vels
         return poss, vels
 

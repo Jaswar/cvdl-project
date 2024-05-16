@@ -11,13 +11,13 @@ default_experiment_args = {
         'r': 3.0,
         'length': 10.0,
         'max_theta': 3 * np.pi / 4,
-        'mass': 5.0,
+        'g': 9.81,
     },
     'pendulum_scale': {
         'r': 5.0,
         'length': 10.0,
         'max_theta': np.pi / 4,
-        'mass': 5.0,
+        'g': 9.81,
         'proj_dist': 21.0,
         'focal_length': 20.0,
     },
@@ -25,7 +25,7 @@ default_experiment_args = {
         'r': 10.0,
         'length': 10.0,
         'max_theta': np.pi / 4,
-        'mass': 5.0,
+        'g': 9.81,
         'proj_dist': 20.0,
     }
 }
@@ -111,8 +111,8 @@ def generate_pendulum_sequence(args):
         sequence.append(frame)
 
         for _ in range(args.ode_steps):
-            F = -args.mass * 10 * np.sin(theta)
-            vel = vel + args.dt / args.ode_steps * F / args.length
+            acc = -args.g * np.sin(theta)
+            vel = vel + args.dt / args.ode_steps * acc / args.length
             theta = theta + args.dt / args.ode_steps * vel
 
     return sequence, thetas, velocities
@@ -142,8 +142,8 @@ def generate_pendulum_scale_sequence(args):
         sequence.append(frame)
 
         for _ in range(args.ode_steps):
-            F = -args.mass * 10 * np.sin(theta)
-            vel = vel + args.dt / args.ode_steps * F / args.length
+            acc = -args.g * np.sin(theta)
+            vel = vel + args.dt / args.ode_steps * acc / args.length
             theta = theta + args.dt / args.ode_steps * vel
 
     return sequence, thetas, velocities
@@ -169,8 +169,8 @@ def generate_pendulum_intensity_sequence(args):
         sequence.append(frame)
 
         for _ in range(args.ode_steps):
-            F = -args.mass * 10 * np.sin(theta)
-            vel = vel + args.dt / args.ode_steps * F / args.length
+            acc = -args.g * np.sin(theta)
+            vel = vel + args.dt / args.ode_steps * acc / args.length
             theta = theta + args.dt / args.ode_steps * vel
 
     return sequence, thetas, velocities
@@ -192,7 +192,7 @@ if __name__ == '__main__':
 
     # Experiment specific attributes, values defined by default_experiment_args
     parser.add_argument('--length', type=float, default=None)
-    parser.add_argument('--mass', type=float, default=None)
+    parser.add_argument('--g', type=float, default=None)
     parser.add_argument('--max_theta', type=float, default=None)
     parser.add_argument('--r', type=float, default=None)
     parser.add_argument('--focal_length', type=float, default=None)
