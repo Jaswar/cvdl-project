@@ -27,6 +27,17 @@ default_experiment_args = {
         'max_theta': np.pi / 4,
         'mass': 5.0,
         'proj_dist': 20.0,
+    },
+    'bouncing_ball_drop': {
+        'r': 3.0,
+        'g': 9.81,
+        'elasticity': 0.5,
+    },
+    'ball_throw': {
+        'r': 3.0,
+        'g': 9.81,
+        'max_velocity': 20.0,
+        'theta': np.pi / 4,
     }
 }
 
@@ -44,7 +55,9 @@ def generate_dataset(args):
     dataset_path = os.path.join(args.dest, f'{args.experiment}')
     generator = {'pendulum': generate_pendulum_sequence,
                  'pendulum_scale': generate_pendulum_scale_sequence,
-                 'pendulum_intensity': generate_pendulum_intensity_sequence}[args.experiment]
+                 'pendulum_intensity': generate_pendulum_intensity_sequence,
+                 'bouncing_ball_drop': generate_bouncing_ball_drop_sequence,
+                 'ball_throw': generate_ball_throw_sequence}[args.experiment]
     sequences = []
     poss = []
     vels = []
@@ -175,6 +188,83 @@ def generate_pendulum_intensity_sequence(args):
 
     return sequence, thetas, velocities
 
+def generate_bouncing_ball_drop_sequence(args):
+    sequence = []
+    height = np.random.uniform(args.r, args.img_size - args.r) # put ball in image
+    velocity = 0
+
+    heights = []
+    velocities = []
+
+    for _ in range(args.seq_len):
+        heights.append(height)
+        velocities.append(velocity)
+
+        frame = np.zeros((args.img_size, args.img_size, 3))
+
+        clamped_height = np.clip(int(height), args.r, args.img_size - args.r)
+
+        rr, cc = disk((args.img_size - int(clamped_height), args.img_size // 2), args.r)
+        frame[rr, cc, :] = (255, 0, 0)
+        frame = frame.astype(np.uint8)
+
+        sequence.append(frame)
+    
+        for _ in range(args.ode_steps):
+            height += velocity * (args.dt / args.ode_steps)
+            velocity -= args.g * (args.dt / args.ode_steps)
+
+            if (height <= args.r): # check for bounce
+                height = args.r
+                velocity = -velocity * args.elasticity # reverse velocity (changing direction) and simulate energy loss of elasticity
+
+    return sequence, heights, velocities
+
+def generate_ball_throw_sequence(args):
+    sequence = []
+    initial_velocity = np.random.uniform(0, args.max_velocity)
+    theta = args.theta
+
+    velocity_x = initial_velocity * np.cos(theta)
+    velocity_y = initial_velocity * np.sin(theta)
+
+    position_x = args.r
+    position_y = args.img_size // 2
+
+    positions_x = []
+    positions_y = []
+    velocities_x = []
+    velocities_y = []
+
+    for _ in range(args.seq_len):
+        positions_x.append(position_x)
+        positions_y.append(position_y)
+        velocities_x.append(velocity_x)
+        velocities_y.append(velocity_y)
+
+        frame = np.zeros((args.img_size, args.img_size, 3))
+
+        clamped_position_y = np.clip(int(position_y), args.r, args.img_size - args.r)
+        clamped_position_x = np.clip(int(position_x), args.r, args.img_size - args.r)
+
+        rr, cc = disk((args.img_size - int(clamped_position_y), int(clamped_position_x)), args.r)
+        frame[rr, cc, :] = (255, 0, 0)
+        frame = frame.astype(np.uint8)
+
+        sequence.append(frame)
+    
+        for _ in range(args.ode_steps):
+            position_x += velocity_x * (args.dt / args.ode_steps)
+            position_y += velocity_y * (args.dt / args.ode_steps)
+
+            if (position_y <= args.r):
+                velocity_x = 0
+                velocity_y = 0
+                position_y = args.r
+            else:
+                velocity_y -= args.g * (args.dt / args.ode_steps)
+    return sequence, positions_x, positions_y
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -197,6 +287,12 @@ if __name__ == '__main__':
     parser.add_argument('--r', type=float, default=None)
     parser.add_argument('--focal_length', type=float, default=None)
     parser.add_argument('--proj_dist', type=float, default=None)
+    parser.add_argument('--g', type=float, default=None)
+    parser.add_argument('--elasticity', type=float, default=None)
+    parser.add_argument('--max_velocity', type=float, default=None)
+    parser.add_argument('--theta', type=float, default=None)
+
+
 
     args = parser.parse_args()
     fill_args(args)
