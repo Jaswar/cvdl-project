@@ -331,7 +331,6 @@ if __name__ == '__main__':
     parser.add_argument('--r', type=float, default=None)
     parser.add_argument('--focal_length', type=float, default=None)
     parser.add_argument('--proj_dist', type=float, default=None)
-    parser.add_argument('--g', type=float, default=None)
     parser.add_argument('--elasticity', type=float, default=None)
     parser.add_argument('--max_velocity', type=float, default=None)
     parser.add_argument('--theta', type=float, default=None)
