@@ -275,7 +275,7 @@ def generate_ball_throw_sequence(args):
                 position_y = args.r
             else:
                 velocity_y -= args.g * (args.dt / args.ode_steps)
-    return sequence, positions_x, positions_y
+    return sequence, list(zip(positions_x, positions_y)), list(zip(velocities_x, velocities_y))
 
 
 def generate_sliding_block_sequence(args):
