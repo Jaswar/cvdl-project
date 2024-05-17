@@ -1,4 +1,5 @@
 from skimage.draw import disk
+import scipy
 import numpy as np
 import os
 import matplotlib.pyplot as plt
@@ -11,13 +12,13 @@ default_experiment_args = {
         'r': 3.0,
         'length': 10.0,
         'max_theta': 3 * np.pi / 4,
-        'mass': 5.0,
+        'g': 9.81,
     },
     'pendulum_scale': {
         'r': 5.0,
         'length': 10.0,
         'max_theta': np.pi / 4,
-        'mass': 5.0,
+        'g': 9.81,
         'proj_dist': 21.0,
         'focal_length': 20.0,
     },
@@ -25,7 +26,7 @@ default_experiment_args = {
         'r': 10.0,
         'length': 10.0,
         'max_theta': np.pi / 4,
-        'mass': 5.0,
+        'g': 9.81,
         'proj_dist': 20.0,
     },
     'bouncing_ball_drop': {
@@ -38,6 +39,16 @@ default_experiment_args = {
         'g': 9.81,
         'max_velocity': 20.0,
         'theta': np.pi / 4,
+    },
+    'sliding_block': {
+        'friction': 0.2,
+        'inclination': np.pi / 8,
+        'g': 9.81,
+        'width': 8.0,
+        'height': 4.0,
+        # Rotate frames to match the block rotation
+        # Set to false by default due to a low visual quality of the rotated frames
+        'rotate_frames': False,
     }
 }
 
@@ -57,7 +68,8 @@ def generate_dataset(args):
                  'pendulum_scale': generate_pendulum_scale_sequence,
                  'pendulum_intensity': generate_pendulum_intensity_sequence,
                  'bouncing_ball_drop': generate_bouncing_ball_drop_sequence,
-                 'ball_throw': generate_ball_throw_sequence}[args.experiment]
+                 'ball_throw': generate_ball_throw_sequence,
+                 'sliding_block': generate_sliding_block_sequence}[args.experiment]
     sequences = []
     poss = []
     vels = []
@@ -124,8 +136,8 @@ def generate_pendulum_sequence(args):
         sequence.append(frame)
 
         for _ in range(args.ode_steps):
-            F = -args.mass * 10 * np.sin(theta)
-            vel = vel + args.dt / args.ode_steps * F / args.length
+            acc = -args.g * np.sin(theta)
+            vel = vel + args.dt / args.ode_steps * acc / args.length
             theta = theta + args.dt / args.ode_steps * vel
 
     return sequence, thetas, velocities
@@ -155,8 +167,8 @@ def generate_pendulum_scale_sequence(args):
         sequence.append(frame)
 
         for _ in range(args.ode_steps):
-            F = -args.mass * 10 * np.sin(theta)
-            vel = vel + args.dt / args.ode_steps * F / args.length
+            acc = -args.g * np.sin(theta)
+            vel = vel + args.dt / args.ode_steps * acc / args.length
             theta = theta + args.dt / args.ode_steps * vel
 
     return sequence, thetas, velocities
@@ -182,8 +194,8 @@ def generate_pendulum_intensity_sequence(args):
         sequence.append(frame)
 
         for _ in range(args.ode_steps):
-            F = -args.mass * 10 * np.sin(theta)
-            vel = vel + args.dt / args.ode_steps * F / args.length
+            acc = -args.g * np.sin(theta)
+            vel = vel + args.dt / args.ode_steps * acc / args.length
             theta = theta + args.dt / args.ode_steps * vel
 
     return sequence, thetas, velocities
@@ -266,6 +278,38 @@ def generate_ball_throw_sequence(args):
     return sequence, positions_x, positions_y
 
 
+def generate_sliding_block_sequence(args):
+    assert args.width <= args.img_size
+    assert args.height <= args.img_size // 2 - 1
+    assert args.inclination < np.pi / 2
+
+    sequence = []
+    x = np.random.uniform(0, args.img_size - args.width)
+    vel = 0
+    xs = []
+    velocities = []
+    y = args.img_size // 2
+    for _ in range(args.seq_len):
+        velocities.append(vel)
+        xs.append(x)
+        frame = np.zeros((args.img_size, args.img_size, 3))
+
+        frame[int(y):int(y + args.height), int(x):int(x + args.width)] = (255, 0, 0)
+        frame[int(y + args.height):int(y + args.height + 1), :] = (0, 0, 255)
+        frame = frame.astype(np.uint8)
+        if args.rotate_frames:
+            frame = scipy.ndimage.rotate(frame, -args.inclination * 180 / np.pi, reshape=False, order=0)
+
+        sequence.append(frame)
+
+        for _ in range(args.ode_steps):
+            acc = args.g * (np.sin(args.inclination) - args.friction * np.cos(args.inclination))
+            vel = vel + args.dt / args.ode_steps * acc
+            x = x + args.dt / args.ode_steps * vel
+
+    return sequence, xs, velocities
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--experiment', type=str)
@@ -282,7 +326,7 @@ if __name__ == '__main__':
 
     # Experiment specific attributes, values defined by default_experiment_args
     parser.add_argument('--length', type=float, default=None)
-    parser.add_argument('--mass', type=float, default=None)
+    parser.add_argument('--g', type=float, default=None)
     parser.add_argument('--max_theta', type=float, default=None)
     parser.add_argument('--r', type=float, default=None)
     parser.add_argument('--focal_length', type=float, default=None)
@@ -293,6 +337,12 @@ if __name__ == '__main__':
     parser.add_argument('--theta', type=float, default=None)
 
 
+
+    parser.add_argument('--friction', type=float, default=None)
+    parser.add_argument('--width', type=float, default=None)
+    parser.add_argument('--height', type=float, default=None)
+    parser.add_argument('--inclination', type=float, default=None)
+    parser.add_argument('--rotate_frames', type=bool, default=None)
 
     args = parser.parse_args()
     fill_args(args)

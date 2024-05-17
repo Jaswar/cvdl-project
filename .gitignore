@@ -13,6 +13,7 @@ data/datasets/pendulum_intensity/*
 data/datasets/pendulum_scale/*
 data/datasets/spring_color/*
 data/datasets/spring_color_half/*
+data/datasets/sliding_block/*
 
 !**.gitkeep
 
