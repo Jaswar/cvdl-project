@@ -138,6 +138,43 @@ class bouncing_ball_drop_cell(ode_cell):
             poss = poss + self.dt / 10 * vels
         return poss, vels
 
+class ball_throw_cell(ode_cell):
+
+    def build(self, inputs_shape):
+        if inputs_shape[-1] is None:
+            raise ValueError("Expected inputs.shape[-1] to be known, saw shape: %s"
+                             % str(inputs_shape))
+
+        input_depth = inputs_shape[-1]
+        h_depth = self._num_units
+        assert h_depth == input_depth
+
+        self.dt = self.add_variable("dt_x", shape=[], initializer=tf.constant_initializer(0.3), trainable=False)
+        self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
+        self.r = self.add_variable("r", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
+        self.built = True
+
+    def call(self, poss, vels):
+        x, y = poss[:, 0], poss[:, 1]
+        vx, vy = vels[:, 0], vels[:, 1]
+        for _ in range(10):
+            acc = -tf.exp(self.g)
+            vy = vy + self.dt / 10 * acc
+            y = y + self.dt / 10 * vy
+            x = x + self.dt / 10 * vx
+
+            indices = tf.where(y <= self.r)
+            vy = tf.tensor_scatter_nd_update(vy, indices, tf.tile(tf.convert_to_tensor([0.0]), [tf.shape(indices)[0]]))
+            vx = tf.tensor_scatter_nd_update(vx, indices, tf.tile(tf.convert_to_tensor([0.0]), [tf.shape(indices)[0]]))
+            y = tf.tensor_scatter_nd_update(y, indices, tf.tile(tf.convert_to_tensor([self.r]), [tf.shape(indices)[0]]))
+        # 32 - y since (0, 0) is the top left corner
+        y = 32 - y
+        x = tf.clip_by_value(x, self.r, 32 - self.r)
+        y = tf.clip_by_value(y, self.r, 32 - self.r)
+        vels = tf.stack([vx, vy], axis=1)
+        poss = tf.stack([x, y], axis=1)
+        return poss, vels
+
 class sliding_block_cell(ode_cell):
     def build(self, inputs_shape):
         if inputs_shape[-1] is None:

@@ -86,6 +86,12 @@ data_file, test_data_file, cell_type, seq_len, test_seq_len, input_steps, pred_s
         "bouncing_ball_drop_cell",
         12, 30, 4, 6, 32*32
     ),
+    'ball_throw': (
+        "ball_throw/ball_throw_sl12.npz",
+        "ball_throw/ball_throw_sl30.npz",
+        "ball_throw",
+        12, 30, 4, 6, 32*32
+    ),
     'sliding_block': (
         "sliding_block/sliding_block_sl12.npz",
         "sliding_block/sliding_block_sl30.npz",
