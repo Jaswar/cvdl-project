@@ -127,15 +127,22 @@ class bouncing_ball_drop_cell(ode_cell):
         self.built = True
 
     def call(self, poss, vels):
+        x, y = poss[:, 0], poss[:, 1]
         vx, vy = vels[:, 0], vels[:, 1]
         for _ in range(10):
             acc = -tf.exp(self.g)
             vy = vy + self.dt / 10 * acc
-            indices = tf.where(poss[:, 1] <= self.r)
-            updated = -vy[poss[:, 1] <= self.r] * self.elasticity
+            y = y + self.dt / 10 * vy
+            x = x + self.dt / 10 * vx
+
+            indices = tf.where(y <= self.r)
+            updated = -vy[y <= self.r] * self.elasticity
             vy = tf.tensor_scatter_nd_update(vy, indices, updated)
-            vels = tf.stack([vx, vy], axis=1)
-            poss = poss + self.dt / 10 * vels
+        # 32 - y since (0, 0) is the top left corner
+        y = 32 - y
+        y = tf.clip_by_value(y, self.r, 32 - self.r)
+        vels = tf.stack([vx, vy], axis=1)
+        poss = tf.stack([x, y], axis=1)
         return poss, vels
 
 class ball_throw_cell(ode_cell):
