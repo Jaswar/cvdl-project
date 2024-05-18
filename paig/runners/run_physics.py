@@ -80,6 +80,12 @@ data_file, test_data_file, cell_type, seq_len, test_seq_len, input_steps, pred_s
         "pendulum_intensity_cell",
         12, 30, 4, 6, 32*32
     ),
+    'bouncing_ball_drop': (
+        "bouncing_ball_drop/bouncing_ball_drop_sl12.npz",
+        "bouncing_ball_drop/bouncing_ball_drop_sl30.npz",
+        "bouncing_ball_drop_cell",
+        12, 30, 4, 6, 32*32
+    ),
     'sliding_block': (
         "sliding_block/sliding_block_sl12.npz",
         "sliding_block/sliding_block_sl30.npz",

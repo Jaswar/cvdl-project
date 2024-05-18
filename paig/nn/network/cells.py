@@ -108,6 +108,36 @@ class pendulum_intensity_cell(ode_cell):
         return intensity
 
 
+class bouncing_ball_drop_cell(ode_cell):
+
+    def build(self, inputs_shape):
+        if inputs_shape[-1] is None:
+            raise ValueError("Expected inputs.shape[-1] to be known, saw shape: %s"
+                             % str(inputs_shape))
+
+        input_depth = inputs_shape[-1]
+        h_depth = self._num_units
+        assert h_depth == input_depth
+
+        self.dt = self.add_variable("dt_x", shape=[], initializer=tf.constant_initializer(0.3), trainable=False)
+        self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
+        # the model has no way of backpropagating through the radius, so set it to the correct value
+        self.r = self.add_variable("r", shape=[], initializer=tf.constant_initializer(3.0), trainable=False)
+        self.elasticity = self.add_variable("elasticity", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
+        self.built = True
+
+    def call(self, poss, vels):
+        vx, vy = vels[:, 0], vels[:, 1]
+        for _ in range(10):
+            acc = -tf.exp(self.g)
+            vy = vy + self.dt / 10 * acc
+            indices = tf.where(poss[:, 1] <= self.r)
+            updated = -vy[poss[:, 1] <= self.r] * self.elasticity
+            vy = tf.tensor_scatter_nd_update(vy, indices, updated)
+            vels = tf.stack([vx, vy], axis=1)
+            poss = poss + self.dt / 10 * vels
+        return poss, vels
+
 class sliding_block_cell(ode_cell):
     def build(self, inputs_shape):
         if inputs_shape[-1] is None:

@@ -8,7 +8,7 @@ from pprint import pprint
 import inspect
 
 from nn.network.base import BaseNet, OPTIMIZERS
-from nn.network.cells import bouncing_ode_cell, spring_ode_cell, gravity_ode_cell, pendulum_cell, pendulum_scale_cell, pendulum_intensity_cell, sliding_block_cell
+from nn.network.cells import bouncing_ode_cell, spring_ode_cell, gravity_ode_cell, pendulum_cell, pendulum_scale_cell, pendulum_intensity_cell, sliding_block_cell, bouncing_ball_drop_cell
 from nn.network.stn import stn
 from nn.network.blocks import unet, shallow_unet, variable_from_network
 from nn.utils.misc import log_metrics
@@ -27,6 +27,7 @@ CELLS = {
     "pendulum_cell": pendulum_cell,
     "pendulum_scale_cell": pendulum_scale_cell,
     "pendulum_intensity_cell": pendulum_intensity_cell,
+    'bouncing_ball_drop_cell': bouncing_ball_drop_cell,
     'sliding_block_cell': sliding_block_cell,
     "lstm": tf.nn.rnn_cell.LSTMCell
 }
@@ -43,6 +44,7 @@ COORD_UNITS = {
     'pendulum_scale': 2,
     'pendulum_intensity': 2,
     'sliding_block': 4,
+    'bouncing_ball_drop': 4
 }
 
 class PhysicsNet(BaseNet):
