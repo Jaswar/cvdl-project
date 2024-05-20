@@ -53,6 +53,7 @@ optimizer:
     lr_scheduler_step_size_physics: 100
 
 data:
+  data_root: /home/jan/Documents/TUDelftMSc/CVDL/project/project/PhysParamInference/data
   path_data: synthetic_data/wallclock9
   skip_timesteps: 3
   max_samples: 15

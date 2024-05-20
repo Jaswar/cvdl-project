@@ -25,6 +25,7 @@ optimizer:
   lr_scheduler_step_size_repr: 25
 
 data:
+  data_root: /home/jan/Documents/TUDelftMSc/CVDL/project/project/PhysParamInference/data
   path_data: synthetic_data/wallclock9
   skip_timesteps: 3
   max_samples: 25
@@ -38,7 +39,7 @@ dataloader:
 
 logging:
   enable: True
-  logging_interval: 100
+  logging_interval: 1
   test_interval: 100
   checkpoint_interval: 100
 
