@@ -55,6 +55,7 @@ optimizer:
     lr_scheduler_step_size_physics: 100
 
 data:
+  data_root: /home/jan/Documents/TUDelftMSc/CVDL/project/project/PhysParamInference/data
   path_data: 'paig_data/paig_data_test.pt'
   batch_idx: 9
   training_length: 12

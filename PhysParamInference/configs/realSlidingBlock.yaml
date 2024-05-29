@@ -34,7 +34,7 @@ loss:
   regularize_after_epochs: 100
 
 optimizer:
-  epochs: 801
+  epochs: 2001
   background:
     lr_repr: 9e-4
     lr_scheduler_gamma_repr: 0.9
@@ -49,6 +49,7 @@ optimizer:
     lr_scheduler_step_size_physics: 100
   
 data:
+  data_root: /home/jan/Documents/TUDelftMSc/CVDL/project/project/PhysParamInference/data
   path_data: 'real_world_data/data_block.npz'
   start_idx: 0
   skip_timesteps: 1

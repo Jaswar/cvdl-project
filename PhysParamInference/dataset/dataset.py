@@ -418,10 +418,10 @@ class ImageDataset_realData(Dataset):
         self.unused_inds = uniques[counts == 1]
 
         images = torch.tensor(data['imgs'], dtype=torch.float32)
-        if 'masks' in data:
-            masks = torch.tensor(data['masks'], dtype=torch.bool)
-        else:
-            masks = torch.zeros(*images.shape[:-1])
+        # if 'masks' in data:
+        #     masks = torch.tensor(data['masks'], dtype=torch.bool)
+        # else:
+        masks = torch.randn(*images.shape[:-1])
         tsteps = torch.tensor(data['ts'], dtype=torch.float32)
 
         masks = masks[indices]

@@ -71,6 +71,7 @@ def generate_dataset(args):
                  'ball_throw': generate_ball_throw_sequence,
                  'sliding_block': generate_sliding_block_sequence}[args.experiment]
     sequences = []
+    masks = []
     poss = []
     vels = []
     train_size = args.train_size
@@ -79,12 +80,14 @@ def generate_dataset(args):
     for i in range(train_size + val_size + test_size):
         if i % 100 == 0:
             print(f'\rGenerating sequence {i}/{train_size + val_size + test_size}', end='')
-        seq, ang, vel = generator(args)
+        seq, ma, ang, vel = generator(args)
         sequences.append(seq)
+        masks.append(ma)
         poss.append(ang)
         vels.append(vel)
     print(f'\rGenerating sequence {train_size + val_size + test_size}/{train_size + val_size + test_size}')
     sequences = np.array(sequences, dtype=np.uint8)
+    masks = np.array(masks, dtype=np.uint8)
     poss = np.array(poss, dtype=np.float32)
     vels = np.array(vels, dtype=np.float32)
 
@@ -92,20 +95,33 @@ def generate_dataset(args):
     compressed_path = os.path.join(dataset_path, f'{args.experiment}_sl{args.seq_len}.npz')
     np.savez_compressed(compressed_path,
                         train_x={'frames': sequences[:train_size],
+                                 'masks': masks[:train_size],
                                  'pos': poss[:train_size],
                                  'vel': vels[:train_size]},
                         valid_x={'frames': sequences[train_size:train_size + val_size],
+                                 'masks': masks[train_size:train_size + val_size],
                                  'pos': poss[train_size:train_size + val_size],
                                  'vel': vels[train_size:train_size + val_size]},
                         test_x={'frames': sequences[train_size + val_size:],
+                                'masks': masks[train_size + val_size:],
                                 'pos': poss[train_size + val_size:],
                                 'vel': vels[train_size + val_size:]})
 
-    result = gallery(np.concatenate(sequences[:10] / 255), ncols=sequences.shape[1])
-
-    gallery_path = os.path.join(dataset_path, f'{args.experiment}_sl{args.seq_len}_samples.jpg')
     norm = plt.Normalize(0.0, 1.0)
+
+    gallery_path = os.path.join(dataset_path, f'{args.experiment}_sl{args.seq_len}_samples_masks.jpg')
     fig, ax = plt.subplots(figsize=(sequences.shape[1], 10))
+    masks = np.expand_dims(masks, -1)
+    result = gallery(np.concatenate(masks[:10]), ncols=sequences.shape[1])
+    ax.imshow(np.squeeze(result), interpolation='nearest', cmap=cm.Greys_r, norm=norm)
+    ax.get_xaxis().set_visible(False)
+    ax.get_yaxis().set_visible(False)
+    fig.tight_layout()
+    fig.savefig(gallery_path)
+
+    gallery_path = os.path.join(dataset_path, f'{args.experiment}_sl{args.seq_len}_samples_frames.jpg')
+    fig, ax = plt.subplots(figsize=(sequences.shape[1], 10))
+    result = gallery(np.concatenate(sequences[:10] / 255), ncols=sequences.shape[1])
     ax.imshow(np.squeeze(result), interpolation='nearest', cmap=cm.Greys_r, norm=norm)
     ax.get_xaxis().set_visible(False)
     ax.get_yaxis().set_visible(False)
@@ -118,6 +134,7 @@ def generate_pendulum_sequence(args):
     assert args.max_theta <= np.pi
 
     sequence = []
+    masks = []
     theta = np.random.uniform(-args.max_theta, args.max_theta)
     vel = 0
     thetas = []
@@ -126,21 +143,24 @@ def generate_pendulum_sequence(args):
         thetas.append(theta)
         velocities.append(vel)
         frame = np.zeros((args.img_size, args.img_size, 3))
+        mask = np.zeros((args.img_size, args.img_size))
         x = args.length * np.sin(theta) + args.img_size // 2
         y = args.length * np.cos(theta) + args.img_size // 2
 
         rr, cc = disk((y, x), args.r)
         frame[rr, cc, :] = (255, 0, 0)
         frame = frame.astype(np.uint8)
+        mask[rr, cc] = 1
 
         sequence.append(frame)
+        masks.append(mask)
 
         for _ in range(args.ode_steps):
             acc = -args.g * np.sin(theta)
             vel = vel + args.dt / args.ode_steps * acc / args.length
             theta = theta + args.dt / args.ode_steps * vel
 
-    return sequence, thetas, velocities
+    return sequence, masks, thetas, velocities
 
 
 def generate_pendulum_scale_sequence(args):

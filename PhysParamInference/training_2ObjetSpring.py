@@ -2,7 +2,6 @@ import os
 import torch
 
 import hydra
-from _learningPipeline.copyCode import copyFiles
 import logging
 
 from omegaconf import DictConfig
@@ -21,9 +20,9 @@ CONFIG_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "configs"
 
 @hydra.main(config_path=CONFIG_DIR, config_name="2ObjectsSpring")
 def main(cfg: DictConfig):
-    if 'copy' in cfg:
-        copyFiles(cfg['copy'])
-        log.info("Code copied")
+    # if 'copy' in cfg:
+    #     copyFiles(cfg['copy'])
+    #     log.info("Code copied")
 
     # Select device
     if torch.cuda.is_available():
