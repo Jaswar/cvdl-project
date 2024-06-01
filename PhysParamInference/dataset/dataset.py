@@ -418,10 +418,10 @@ class ImageDataset_realData(Dataset):
         self.unused_inds = uniques[counts == 1]
 
         images = torch.tensor(data['imgs'], dtype=torch.float32)
-        # if 'masks' in data:
-        #     masks = torch.tensor(data['masks'], dtype=torch.bool)
-        # else:
-        masks = torch.randn(*images.shape[:-1])
+        if 'masks' in data:
+            masks = torch.tensor(data['masks'], dtype=torch.bool)
+        else:
+            masks = torch.randn(*images.shape[:-1])
         tsteps = torch.tensor(data['ts'], dtype=torch.float32)
 
         masks = masks[indices]
@@ -476,3 +476,108 @@ class ImageDataset_realData(Dataset):
 
     def __len__(self):
         return self.pixel_coords.shape[0]
+
+
+class ImageDataset_CVDL(Dataset):
+    def __init__(
+        self,
+        path_data,
+        batch_idx,
+        prediction_length=None,
+        data_root=DEFAULT_DATA_ROOT,
+        training_length=None,
+        test_set=False,
+        **kwargs
+    ):
+        path_data = os.path.join(data_root, path_data)
+        data = np.load(path_data, allow_pickle=True)
+
+        if training_length is None:
+            training_length = 500  # Large Number to include everything
+
+        # Use prediction length to overwrite training_length
+        # if test_set:
+        #     training_length = prediction_length
+
+        if test_set:
+            data = data['test_x'].item()
+        else:
+            data = data['train_x'].item()
+
+        masks = torch.tensor(data['masks'][batch_idx, :training_length], dtype=torch.float32)
+        images = torch.tensor(data['frames'][batch_idx, :training_length], dtype=torch.float32)
+
+        if not test_set:
+            # Ensure that we cannot accidentially use information other than on the first frame
+            masks[1:, ...] = torch.rand_like(masks[1:, ...]) > 0.5
+
+            # Blur masks to create "blobb" for loss on first frame
+            trafo = transforms.GaussianBlur(kernel_size=(35, 35), sigma=(6, 6))
+            masks = trafo(masks.unsqueeze(1)).squeeze() > 0.1
+
+        n_tsteps, H, W, _ = images.shape
+        self.image_dim = [H, W]
+        self.pixel_coords = get_pixel_coords(H, W)
+
+        dt = 0.3  # From appendix of paper
+        self.t_steps = dt * torch.arange(0, n_tsteps)
+        n_tsteps = len(self.t_steps)
+
+        self.masks = masks.view(n_tsteps, -1)
+        self.images = images.view(n_tsteps, -1, 3)
+
+        traj_mean = torch.tensor([])
+        traj_bb = torch.tensor([])
+        for i in range(n_tsteps):
+            traj_mean = torch.cat([
+                traj_mean,
+                torch.mean(self.pixel_coords[masks[i].flatten() > 0], dim=0).unsqueeze(0)
+            ],
+                dim=0
+            )
+            _, center_bb = get_bounding_box(masks[i])
+            traj_bb = torch.cat([traj_bb, center_bb.unsqueeze(0)], dim=0)
+
+        self.trajectory_mean = traj_mean
+        self.trajectory_bb_center = traj_bb
+
+    def get_image_dim(self):
+        return self.image_dim
+
+    def get_pixel_coords(self):
+        return self.pixel_coords
+
+    def get_full_mask(self, indices=-1):
+        # Indices can be a single integer or a list of intergers. If none given (or -1) return all images
+        masks = self.masks.float()
+
+        if indices == -1:
+            return_masks = masks[:, :]
+        else:
+            return_masks = masks[indices, :]
+
+        return torch.reshape(return_masks, (-1, *self.get_image_dim())).squeeze()
+
+    def get_full_images(self, indices=-1):
+        # Indices can be a single integer or a list of intergers. If none given (or -1) return all images
+        if indices == -1:
+            return_ims = self.images[:, :, :]
+        else:
+            return_ims = self.images[indices, :, :]
+        return torch.reshape(return_ims, (-1, *self.get_image_dim(), 3)).squeeze()
+
+    def __getitem__(self, idx: int):
+        im_vals = self.images[:, idx, :].transpose(0, 1)
+        masks = self.masks[:, idx].transpose(0, 1)
+
+        item = {
+            "coords": self.pixel_coords[idx, :],
+            "im_vals": im_vals,
+            "mask": masks
+        }
+
+        return item
+
+    def __len__(self):
+        return self.pixel_coords.shape[0]
+
