@@ -9,7 +9,7 @@ from models.sceneRepresentation import Scene
 from dataset.dataset import ImageDataset_CVDL, Dataloader
 from optimization.optimizers import optimizersScene
 from optimization.loss import Losses
-from util.initialValues import estimate_initial_values
+from util.initialValues import estimate_initial_vals_pendulum
 from util.visualization import VisualizationSyntheticPendulum
 from util.util import setSeeds
 
@@ -55,7 +55,7 @@ def main(cfg: DictConfig):
         c_init = torch.tensor([cfg.ode.c_init], dtype=torch.float32)
         l_pendulum_init = torch.tensor([cfg.ode.l_pendulum_init], dtype=torch.float32)
 
-    init_values_estimate = estimate_initial_values(
+    init_values_estimate = estimate_initial_vals_pendulum(
         train_data.get_full_mask(),
         train_data.get_pixel_coords(),
         tspan,

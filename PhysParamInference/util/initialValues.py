@@ -100,6 +100,36 @@ def estimate_initial_values(masks, pixel_coords, time_steps):
     }
 
 
+def estimate_initial_vals_pendulum(masks, pixel_coords, time_steps):
+    A = torch.tensor([0.5, 0.5])
+
+    points1 = pixel_coords[masks[0].view(-1) > 0.05]
+    points2 = pixel_coords[masks[1].view(-1) > 0.05]
+
+    center1 = torch.mean(points1, dim=0)
+    center2 = torch.mean(points2, dim=0)
+
+    v_down = torch.tensor([0, 1], dtype=torch.float32)
+
+    v1 = center1 - A
+    cos_angle1 = torch.dot(v1, v_down) / (torch.norm(v1) * torch.norm(v_down))
+    angle1 = torch.acos(cos_angle1)
+    if center1[0] < 0.5:
+        angle1 *= -1
+
+    v2 = center2 - A
+    cos_angle2 = torch.dot(v2, v_down) / (torch.norm(v2) * torch.norm(v_down))
+    angle2 = torch.acos(cos_angle2)
+    if center2[0] < 0.5:
+        angle2 *= -1
+
+    velocity = (angle2 - angle1) / (time_steps[1] - time_steps[0])
+    x0 = torch.tensor([angle1, velocity])
+    return {
+        'A': A,
+        'x0': x0
+    }
+
 def estimate_inital_vals_spring(masks, coords):
     p1_0 = torch.mean(coords[masks["masks1"].flatten() > 0], dim=0)
     p2_0 = torch.mean(coords[masks["masks2"].flatten() > 0], dim=0)

@@ -55,6 +55,7 @@ def main(cfg: DictConfig):
         train_data.get_pixel_coords(),
         tspan,
     )
+    print(init_values_estimate)
 
     rel_error_init_A = (torch.norm(train_data.get_image_dim()[0]*init_values_estimate['A'] - train_data.parameters['A']) /
                         torch.norm(train_data.parameters['A']))

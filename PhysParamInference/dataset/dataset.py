@@ -504,16 +504,8 @@ class ImageDataset_CVDL(Dataset):
         else:
             data = data['train_x'].item()
 
-        masks = torch.tensor(data['masks'][batch_idx, :training_length], dtype=torch.float32)
-        images = torch.tensor(data['frames'][batch_idx, :training_length], dtype=torch.float32)
-
-        if not test_set:
-            # Ensure that we cannot accidentially use information other than on the first frame
-            masks[1:, ...] = torch.rand_like(masks[1:, ...]) > 0.5
-
-            # Blur masks to create "blobb" for loss on first frame
-            trafo = transforms.GaussianBlur(kernel_size=(35, 35), sigma=(6, 6))
-            masks = trafo(masks.unsqueeze(1)).squeeze() > 0.1
+        masks = torch.tensor(data['masks'][batch_idx, :training_length], dtype=torch.bool)
+        images = torch.tensor(data['frames'][batch_idx, :training_length], dtype=torch.float32) / 255.0
 
         n_tsteps, H, W, _ = images.shape
         self.image_dim = [H, W]
@@ -526,20 +518,6 @@ class ImageDataset_CVDL(Dataset):
         self.masks = masks.view(n_tsteps, -1)
         self.images = images.view(n_tsteps, -1, 3)
 
-        traj_mean = torch.tensor([])
-        traj_bb = torch.tensor([])
-        for i in range(n_tsteps):
-            traj_mean = torch.cat([
-                traj_mean,
-                torch.mean(self.pixel_coords[masks[i].flatten() > 0], dim=0).unsqueeze(0)
-            ],
-                dim=0
-            )
-            _, center_bb = get_bounding_box(masks[i])
-            traj_bb = torch.cat([traj_bb, center_bb.unsqueeze(0)], dim=0)
-
-        self.trajectory_mean = traj_mean
-        self.trajectory_bb_center = traj_bb
 
     def get_image_dim(self):
         return self.image_dim
