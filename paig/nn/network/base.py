@@ -192,7 +192,10 @@ class BaseNet:
         
         eval_iterator = self.get_iterator(type)
         eval_iterator.reset_epoch()
-        
+
+        if type == 'test':
+            self.eval_test_video()
+
         while eval_iterator.get_epoch() < 1:
             if eval_iterator.num_examples < 100:
                 batch_size = eval_iterator.num_examples
@@ -215,3 +218,17 @@ class BaseNet:
         self.run_extra_fns(type)
 
         return eval_metrics_results
+
+    def eval_test_video(self):
+        eval_iterator = self.get_iterator('test')
+        eval_iterator.reset_epoch()
+
+        feed_dict, _ = self.get_batch(1, eval_iterator)
+        fetches = {k: v for k, v in self.eval_metrics.items()}
+        fetches["output"] = self.output
+        fetches["input"] = self.input
+
+        results = self.sess.run(fetches, feed_dict=feed_dict)
+        results = np.squeeze(results['output'])[-30:]
+        np.savez_compressed(os.path.join(self.save_dir, 'test_images_paig.npz'), results)
+

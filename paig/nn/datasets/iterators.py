@@ -56,7 +56,7 @@ class DataIterator:
         return (batch_x, batch_y)
 
 
-def get_iterators(file, conv=False, datapoints=0):
+def get_iterators(file, training_steps, pred_steps, conv=False, datapoints=0, test=False):
     data = dict(np.load(file, allow_pickle=True))
     data['train_x'] = data['train_x'].item()
     data['valid_x'] = data['valid_x'].item()
@@ -68,6 +68,18 @@ def get_iterators(file, conv=False, datapoints=0):
     data['train_x']['frames'] = data["train_x"]['frames'].reshape(data["train_x"]['frames'].shape[:2]+img_shape)/255
     data['valid_x']['frames'] = data["valid_x"]['frames'].reshape(data["valid_x"]['frames'].shape[:2]+img_shape)/255
     data['test_x']['frames'] = data["test_x"]['frames'].reshape(data["test_x"]['frames'].shape[:2]+img_shape)/255
+
+    if not test:
+        data['train_x']['frames'] = data['train_x']['frames'][:, :training_steps, ...]
+        data['valid_x']['frames'] = data['valid_x']['frames'][:, :training_steps, ...]
+        data['test_x']['frames'] = data['test_x']['frames'][:, :training_steps, ...]
+    else:
+        # make compatible with ppi
+        test_size = data['test_x']['frames'].shape[0]
+        data['train_x']['frames'] = data['train_x']['frames'][:, :pred_steps, ...]
+        data['valid_x']['frames'] = data['train_x']['frames'][:test_size, :pred_steps, ...]
+        data['test_x']['frames'] = data['train_x']['frames'][:test_size, :pred_steps, ...]
+
     train_it = DataIterator(X=data['train_x'])
     valid_it = DataIterator(X=data["valid_x"])
     test_it = DataIterator(X=data["test_x"])

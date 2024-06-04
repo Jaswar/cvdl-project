@@ -17,6 +17,9 @@ data/datasets/spring_color/*
 data/datasets/spring_color_half/*
 data/datasets/sliding_block/*
 
+out/pendulum/*
+
+
 **/.ipynb_checkpoints/
 
 !**.gitkeep

@@ -65,10 +65,10 @@ data_file, test_data_file, cell_type, seq_len, test_seq_len, input_steps, pred_s
         "spring_ode_cell",
         12, 30, 3, 7, 64*64),
     "pendulum": (
-        "pendulum/pendulum_sl12.npz",
-        "pendulum/pendulum_sl30.npz",
+        "pendulum/pendulum_sl42.npz",
+        "pendulum/pendulum_sl42.npz",
         "pendulum_cell",
-        12, 30, 4, 6, 32*32),
+        12, 42, 4, 6, 32*32),
     "pendulum_scale": (
         "pendulum_scale/pendulum_scale_sl12.npz",
         "pendulum_scale/pendulum_scale_sl30.npz",
@@ -117,7 +117,7 @@ if __name__ == "__main__":
         data_iterators = get_iterators(
                               os.path.join(
                                   os.path.dirname(os.path.realpath(__file__)), 
-                                  os.path.join(FLAGS.data_dir, data_file)), conv=True, datapoints=FLAGS.datapoints)
+                                  os.path.join(FLAGS.data_dir, data_file)), seq_len, test_seq_len, conv=True, datapoints=FLAGS.datapoints, test=False)
         network.get_data(data_iterators)
         network.train(FLAGS.epochs, FLAGS.batch_size, FLAGS.save_every_n_epochs, FLAGS.eval_every_n_epochs,
                     FLAGS.print_interval, FLAGS.debug)
@@ -136,7 +136,7 @@ if __name__ == "__main__":
     data_iterators = get_iterators(
                           os.path.join(
                               os.path.dirname(os.path.realpath(__file__)), 
-                              os.path.join(FLAGS.data_dir, test_data_file)), conv=True, datapoints=FLAGS.datapoints)
+                              os.path.join(FLAGS.data_dir, test_data_file)), seq_len, test_seq_len, conv=True, datapoints=FLAGS.datapoints, test=True)
     network.get_data(data_iterators)
     network.train(0, FLAGS.batch_size, FLAGS.save_every_n_epochs, FLAGS.eval_every_n_epochs,
                 FLAGS.print_interval, FLAGS.debug)

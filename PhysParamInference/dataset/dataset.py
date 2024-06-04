@@ -496,13 +496,10 @@ class ImageDataset_CVDL(Dataset):
             training_length = 500  # Large Number to include everything
 
         # Use prediction length to overwrite training_length
-        # if test_set:
-        #     training_length = prediction_length
-
         if test_set:
-            data = data['test_x'].item()
-        else:
-            data = data['train_x'].item()
+            training_length = prediction_length
+
+        data = data['train_x'].item()
 
         masks = torch.tensor(data['masks'][batch_idx, :training_length], dtype=torch.bool)
         images = torch.tensor(data['frames'][batch_idx, :training_length], dtype=torch.float32) / 255.0
