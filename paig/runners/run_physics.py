@@ -70,33 +70,33 @@ data_file, test_data_file, cell_type, seq_len, test_seq_len, input_steps, pred_s
         "pendulum_cell",
         12, 42, 4, 6, 32*32),
     "pendulum_scale": (
-        "pendulum_scale/pendulum_scale_sl12.npz",
-        "pendulum_scale/pendulum_scale_sl30.npz",
+        "pendulum_scale/pendulum_scale_sl42.npz",
+        "pendulum_scale/pendulum_scale_sl42.npz",
         "pendulum_scale_cell",
-        12, 30, 4, 6, 32*32),
+        12, 42, 4, 6, 32*32),
     'pendulum_intensity': (
-        "pendulum_intensity/pendulum_intensity_sl12.npz",
-        "pendulum_intensity/pendulum_intensity_sl30.npz",
+        "pendulum_intensity/pendulum_intensity_sl42.npz",
+        "pendulum_intensity/pendulum_intensity_sl42.npz",
         "pendulum_intensity_cell",
-        12, 30, 4, 6, 32*32
+        12, 42, 4, 6, 32*32
     ),
     'bouncing_ball_drop': (
-        "bouncing_ball_drop/bouncing_ball_drop_sl12.npz",
-        "bouncing_ball_drop/bouncing_ball_drop_sl30.npz",
+        "bouncing_ball_drop/bouncing_ball_drop_sl42.npz",
+        "bouncing_ball_drop/bouncing_ball_drop_sl42.npz",
         "bouncing_ball_drop_cell",
-        12, 30, 4, 6, 32*32
+        12, 42, 4, 6, 32*32
     ),
     'ball_throw': (
-        "ball_throw/ball_throw_sl12.npz",
-        "ball_throw/ball_throw_sl30.npz",
+        "ball_throw/ball_throw_sl42.npz",
+        "ball_throw/ball_throw_sl42.npz",
         "ball_throw",
-        12, 30, 4, 6, 32*32
+        12, 42, 4, 6, 32*32
     ),
     'sliding_block': (
-        "sliding_block/sliding_block_sl12.npz",
-        "sliding_block/sliding_block_sl30.npz",
+        "sliding_block/sliding_block_sl42.npz",
+        "sliding_block/sliding_block_sl42.npz",
         "sliding_block_cell",
-        12, 30, 4, 6, 32*32
+        12, 42, 4, 6, 32*32
     )
 }[FLAGS.task]
 

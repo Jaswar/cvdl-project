@@ -12,7 +12,8 @@ def compute_psnr_video(gt, pred):
 
 
 def main(args):
-    gt_data = np.load(args.gt_file, allow_pickle=True)
+    gt_data = np.load(os.path.join(args.gt_file, args.experiment, f'{args.experiment}_sl{args.total_len}.npz'),
+                      allow_pickle=True)
     gt = gt_data['train_x'].item()['frames'][0]
     gt = gt[-args.test_seq_len:]
     gt = gt / 255.0
@@ -24,6 +25,7 @@ def main(args):
     pred_ppi_data = np.load(pred_ppi_path)['arr_0']
     pred_paig_data = np.load(pred_paig_path)['arr_0']
 
+    print(gt.shape, pred_paig_data.shape, pred_ppi_data.shape)
     assert gt.shape == pred_paig_data.shape == pred_ppi_data.shape, 'Shapes of ground truth and predictions do not match'
 
     combined = np.stack([gt, pred_paig_data, pred_ppi_data], axis=0)
@@ -54,5 +56,6 @@ if __name__ == "__main__":
     parser.add_argument('--gt_file', type=str, required=True)
     parser.add_argument('--out_dir', type=str, required=True)
     parser.add_argument('--test_seq_len', type=int, default=30)
+    parser.add_argument('--total_len', type=int, default=42)
     args = parser.parse_args()
     main(args)

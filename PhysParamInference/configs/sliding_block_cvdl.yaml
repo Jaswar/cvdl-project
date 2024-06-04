@@ -1,6 +1,6 @@
 hydra:
   run:
-    dir: ./experiments/${now:%Y-%m-%d}/pendulum_cvdl/${now:%H-%M-%S}_seq9
+    dir: ./experiments/${now:%Y-%m-%d}/sliding_block_cvdl/${now:%H-%M-%S}_seq9
 
 scene:
   background:
@@ -23,10 +23,7 @@ scene:
 
 ode:
   use_adjoint: False
-  use_damping: False
-  c_init: 0.6
-  l_pendulum_init: 1.9
-  init_with_gt: False
+  mu_init: 0.0
 
 online_training:
   enable: True
@@ -54,8 +51,8 @@ optimizer:
 
 data:
   data_root: /home/jan/Documents/TUDelftMSc/CVDL/project/project/data/datasets
-  path_data: 'pendulum/pendulum_sl42.npz'
-  batch_idx: 9
+  path_data: 'sliding_block/sliding_block_sl42.npz'
+  batch_idx: 0
   training_length: 12
   prediction_length: 42
 

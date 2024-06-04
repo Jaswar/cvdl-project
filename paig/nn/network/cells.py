@@ -194,17 +194,20 @@ class sliding_block_cell(ode_cell):
 
         self.dt = self.add_variable("dt_x", shape=[], initializer=tf.constant_initializer(0.3), trainable=False)
         self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
-        self.inclination = self.add_variable("inclination", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
+        self.inclination = self.add_variable("inclination", shape=[], initializer=tf.constant_initializer(0.0), trainable=True)
         self.friction = self.add_variable("friction", shape=[], initializer=tf.constant_initializer(0.0), trainable=True)
-        self.cutoff = self.add_variable("cuttoff", shape=[], initializer=tf.constant_initializer(0.0), trainable=True)
         self.built = True
 
     def call(self, poss, vels):
+        px, py = poss[:, 0], poss[:, 1]
+        vx, vy = vels[:, 0], vels[:, 1]
         for _ in range(10):
-            acc = self.g * (tf.math.sin(self.inclination) - self.friction * tf.math.cos(self.inclination))
-            vels = vels + self.dt / 10 * acc
-            poss = poss + self.dt / 10 * vels
-            # poss = tf.math.minimum(self.cutoff, poss)  # mix width and img size into self.cutoff
+            acc = tf.exp(self.g) * (tf.math.sin(self.inclination) - self.friction * tf.math.cos(self.inclination))
+            vx = vx + self.dt / 10 * acc
+            px = px + self.dt / 10 * vx
+            py = py + self.dt / 10 * vy
+        poss = tf.stack([px, py], axis=1)
+        vels = tf.stack([vx, vy], axis=1)
         return poss, vels
 
 class bouncing_ode_cell(ode_cell):

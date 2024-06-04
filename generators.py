@@ -42,7 +42,7 @@ default_experiment_args = {
     },
     'sliding_block': {
         'friction': 0.2,
-        'inclination': np.pi / 8,
+        'inclination': np.pi / 13,
         'g': 9.81,
         'width': 8.0,
         'height': 4.0,
@@ -168,6 +168,8 @@ def generate_pendulum_scale_sequence(args):
     assert args.proj_dist > args.length + args.r
 
     sequence = []
+    masks = []
+
     theta = np.random.uniform(-args.max_theta, args.max_theta)
     vel = 0
     thetas = []
@@ -176,26 +178,30 @@ def generate_pendulum_scale_sequence(args):
         velocities.append(vel)
         thetas.append(theta)
         frame = np.zeros((args.img_size, args.img_size, 3))
+        mask = np.zeros((args.img_size, args.img_size))
 
         d = (args.length + args.r) * np.sin(theta)
         radius = args.r * args.focal_length / ((args.proj_dist - d) ** 2 - args.r ** 2) ** 0.5
         radius = min(args.img_size // 2, radius)
         rr, cc = disk((args.img_size // 2, args.img_size // 2), radius)
         frame[rr, cc, :] = (255, 0, 0)
+        mask[rr, cc] = 1
         frame = frame.astype(np.uint8)
 
         sequence.append(frame)
+        masks.append(mask)
 
         for _ in range(args.ode_steps):
             acc = -args.g * np.sin(theta)
             vel = vel + args.dt / args.ode_steps * acc / args.length
             theta = theta + args.dt / args.ode_steps * vel
 
-    return sequence, thetas, velocities
+    return sequence, masks, thetas, velocities
 
 
 def generate_pendulum_intensity_sequence(args):
     sequence = []
+    masks = []
     theta = np.random.uniform(-args.max_theta, args.max_theta)
     vel = 0
     thetas = []
@@ -203,25 +209,31 @@ def generate_pendulum_intensity_sequence(args):
     for _ in range(args.seq_len):
         velocities.append(vel)
         thetas.append(theta)
+
         frame = np.zeros((args.img_size, args.img_size, 3))
+        mask = np.zeros((args.img_size, args.img_size))
 
         d = args.length * np.sin(theta)
         intensity = (args.proj_dist - args.length) ** 2 / (args.proj_dist - d) ** 2
         rr, cc = disk((args.img_size // 2, args.img_size // 2), args.r)
         frame[rr, cc, :] = (int(255 * intensity), 0, 0)
+        mask[rr, cc] = 1
         frame = frame.astype(np.uint8)
 
         sequence.append(frame)
+        masks.append(mask)
 
         for _ in range(args.ode_steps):
             acc = -args.g * np.sin(theta)
             vel = vel + args.dt / args.ode_steps * acc / args.length
             theta = theta + args.dt / args.ode_steps * vel
 
-    return sequence, thetas, velocities
+    return sequence, masks, thetas, velocities
+
 
 def generate_bouncing_ball_drop_sequence(args):
     sequence = []
+    masks = []
     height = np.random.uniform(args.r, args.img_size - args.r) # put ball in image
     velocity = 0
 
@@ -233,6 +245,7 @@ def generate_bouncing_ball_drop_sequence(args):
         velocities.append(velocity)
 
         frame = np.zeros((args.img_size, args.img_size, 3))
+        mask = np.zeros((args.img_size, args.img_size))
 
         clamped_height = np.clip(int(height), args.r, args.img_size - args.r)
 
@@ -241,6 +254,7 @@ def generate_bouncing_ball_drop_sequence(args):
         frame = frame.astype(np.uint8)
 
         sequence.append(frame)
+        masks.append(mask)
     
         for _ in range(args.ode_steps):
             height += velocity * (args.dt / args.ode_steps)
@@ -250,10 +264,12 @@ def generate_bouncing_ball_drop_sequence(args):
                 height = args.r
                 velocity = -velocity * args.elasticity # reverse velocity (changing direction) and simulate energy loss of elasticity
 
-    return sequence, heights, velocities
+    return sequence, masks, heights, velocities
+
 
 def generate_ball_throw_sequence(args):
     sequence = []
+    masks = []
     initial_velocity = np.random.uniform(0, args.max_velocity)
     theta = args.theta
 
@@ -275,16 +291,19 @@ def generate_ball_throw_sequence(args):
         velocities_y.append(velocity_y)
 
         frame = np.zeros((args.img_size, args.img_size, 3))
+        mask = np.zeros((args.img_size, args.img_size))
 
         clamped_position_y = np.clip(int(position_y), args.r, args.img_size - args.r)
         clamped_position_x = np.clip(int(position_x), args.r, args.img_size - args.r)
 
         rr, cc = disk((args.img_size - int(clamped_position_y), int(clamped_position_x)), args.r)
         frame[rr, cc, :] = (255, 0, 0)
+        mask[rr, cc] = 1
         frame = frame.astype(np.uint8)
 
         sequence.append(frame)
-    
+        masks.append(mask)
+
         for _ in range(args.ode_steps):
             position_x += velocity_x * (args.dt / args.ode_steps)
             position_y += velocity_y * (args.dt / args.ode_steps)
@@ -295,7 +314,7 @@ def generate_ball_throw_sequence(args):
                 position_y = args.r
             else:
                 velocity_y -= args.g * (args.dt / args.ode_steps)
-    return sequence, list(zip(positions_x, positions_y)), list(zip(velocities_x, velocities_y))
+    return sequence, masks, list(zip(positions_x, positions_y)), list(zip(velocities_x, velocities_y))
 
 
 def generate_sliding_block_sequence(args):
@@ -304,6 +323,7 @@ def generate_sliding_block_sequence(args):
     assert args.inclination < np.pi / 2
 
     sequence = []
+    masks = []
     x = np.random.uniform(0, args.img_size - args.width)
     vel = 0
     xs = []
@@ -313,21 +333,24 @@ def generate_sliding_block_sequence(args):
         velocities.append(vel)
         xs.append(x)
         frame = np.zeros((args.img_size, args.img_size, 3))
+        mask = np.zeros((args.img_size, args.img_size))
 
         frame[int(y):int(y + args.height), int(x):int(x + args.width)] = (255, 0, 0)
+        mask[int(y):int(y + args.height), int(x):int(x + args.width)] = 1
         frame[int(y + args.height):int(y + args.height + 1), :] = (0, 0, 255)
         frame = frame.astype(np.uint8)
         if args.rotate_frames:
             frame = scipy.ndimage.rotate(frame, -args.inclination * 180 / np.pi, reshape=False, order=0)
 
         sequence.append(frame)
+        masks.append(mask)
 
         for _ in range(args.ode_steps):
             acc = args.g * (np.sin(args.inclination) - args.friction * np.cos(args.inclination))
             vel = vel + args.dt / args.ode_steps * acc
             x = x + args.dt / args.ode_steps * vel
 
-    return sequence, xs, velocities
+    return sequence, masks, xs, velocities
 
 
 if __name__ == '__main__':
