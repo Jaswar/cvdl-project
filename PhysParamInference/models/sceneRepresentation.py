@@ -100,6 +100,14 @@ class Scene(nn.Module):
             **kwargs
         )
 
+    def add_thrownObject_CVDL(
+        self,
+        p0,
+        v0=torch.zeros(2),
+        **kwargs
+    ):
+        self.add_thrownObject(p0, v0, **kwargs)
+
     def add_2ObjectsSpring(
         self,
         **kwargs

@@ -483,6 +483,7 @@ class ImageDataset_CVDL(Dataset):
         self,
         path_data,
         batch_idx,
+        dt=0.3,
         prediction_length=None,
         data_root=DEFAULT_DATA_ROOT,
         training_length=None,
@@ -508,7 +509,6 @@ class ImageDataset_CVDL(Dataset):
         self.image_dim = [H, W]
         self.pixel_coords = get_pixel_coords(H, W)
 
-        dt = 0.3  # From appendix of paper
         self.t_steps = dt * torch.arange(0, n_tsteps)
         n_tsteps = len(self.t_steps)
 

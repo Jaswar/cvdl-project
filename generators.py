@@ -37,8 +37,9 @@ default_experiment_args = {
     'ball_throw': {
         'r': 3.0,
         'g': 9.81,
-        'max_velocity': 20.0,
+        'max_velocity': 15.0,
         'theta': np.pi / 4,
+        'clamp': False
     },
     'sliding_block': {
         'friction': 0.2,
@@ -294,12 +295,18 @@ def generate_ball_throw_sequence(args):
         frame = np.zeros((args.img_size, args.img_size, 3))
         mask = np.zeros((args.img_size, args.img_size))
 
-        clamped_position_y = np.clip(int(position_y), args.r, args.img_size - args.r)
-        clamped_position_x = np.clip(int(position_x), args.r, args.img_size - args.r)
+        clamped_position_y = int(position_y)
+        clamped_position_x = int(position_x)
+        if args.clamp:
+            clamped_position_y = np.clip(int(position_y), args.r, args.img_size - args.r)
+            clamped_position_x = np.clip(int(position_x), args.r, args.img_size - args.r)
 
         rr, cc = disk((args.img_size - int(clamped_position_y), int(clamped_position_x)), args.r)
-        frame[rr, cc, :] = (255, 0, 0)
-        mask[rr, cc] = 1
+        combined = [(r, c) for r, c in zip(rr, cc) if 0 <= r < args.img_size and 0 <= c < args.img_size]
+        if len(combined) > 0:
+            rr, cc = zip(*combined)
+            frame[rr, cc, :] = (255, 0, 0)
+            mask[rr, cc] = 1
         frame = frame.astype(np.uint8)
 
         sequence.append(frame)
@@ -309,7 +316,7 @@ def generate_ball_throw_sequence(args):
             position_x += velocity_x * (args.dt / args.ode_steps)
             position_y += velocity_y * (args.dt / args.ode_steps)
 
-            if (position_y <= args.r):
+            if position_y <= args.r and args.clamp:
                 velocity_x = 0
                 velocity_y = 0
                 position_y = args.r
@@ -379,13 +386,13 @@ if __name__ == '__main__':
     parser.add_argument('--max_velocity', type=float, default=None)
     parser.add_argument('--theta', type=float, default=None)
 
-
-
     parser.add_argument('--friction', type=float, default=None)
     parser.add_argument('--width', type=float, default=None)
     parser.add_argument('--height', type=float, default=None)
     parser.add_argument('--inclination', type=float, default=None)
     parser.add_argument('--rotate_frames', type=bool, default=None)
+
+    parser.add_argument('--clamp', type=bool, default=None)
 
     args = parser.parse_args()
     fill_args(args)
