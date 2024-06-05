@@ -3,7 +3,7 @@ from typing import Tuple
 import torch
 import torch.nn as nn
 import math
-from models.ode import ODE_Pendulum, ODE_2ObjectsSpring, ODE_SlidingBlock, ODE_ThrownObject
+from models.ode import ODE_Pendulum, ODE_2ObjectsSpring, ODE_SlidingBlock, ODE_ThrownObject, ODE_BouncingBallDrop_CVDL
 from util.util import rotmat_2d, get_pixel_coords, applyHomography, interp1D
 
 from torchdiffeq import odeint, odeint_adjoint
@@ -72,6 +72,18 @@ class Scene(nn.Module):
         self.local_representation = LocalRepresentation_SlidingBlock(
             mu=mu,
             alpha=alpha,
+            p0=p0,
+            **kwargs,
+        )
+
+    def add_BouncingBallDrop_CVDL(
+        self,
+        elasticity,
+        p0,
+        **kwargs,
+    ):
+        self.local_representation = LocalRepresentation_BouncingBallDrop_CVDL(
+            elasticity=elasticity,
             p0=p0,
             **kwargs,
         )
@@ -377,6 +389,36 @@ class LocalRepresentation_ThrownObject(LocalRepresentation_OneObject):
         # Update trafos
         self.trafo_to_local = lambda x: (x - self.p0).unsqueeze(1) - traj.unsqueeze(0)
         self.trafo_from_local = lambda x: (x + self.p0).unsqueeze(1) + traj.unsqueeze(0)
+
+
+class LocalRepresentation_BouncingBallDrop_CVDL(LocalRepresentation_OneObject):
+    def __init__(
+        self,
+        elasticity,
+        p0,
+        v0=torch.zeros(2),
+        **kwargs
+    ):
+        super().__init__(**kwargs)
+
+        self.ode = ODE_BouncingBallDrop_CVDL(elasticity)
+        self.p0 = nn.Parameter(p0, requires_grad=True)
+        self.v0 = nn.Parameter(v0, requires_grad=True)
+
+    def update_trafo(self, tspan):
+        # Solve ODE for timespan
+        init_vals = torch.cat([torch.zeros_like(self.v0), self.v0])
+        if self.use_adjoint:
+            y = odeint_adjoint(self.ode, init_vals, tspan)
+        else:
+            y = odeint(self.ode, init_vals, tspan)
+
+        # Position
+        pos = y[:, 0:2]
+
+        # Update trafos
+        self.trafo_to_local = lambda x: (x - self.p0).unsqueeze(1) - pos.unsqueeze(0)
+        self.trafo_from_local = lambda x: (x + self.p0).unsqueeze(1) + pos.unsqueeze(0)
 
 
 class LocalRepresentation_posed(LocalRepresentation_OneObject):

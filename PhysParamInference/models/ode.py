@@ -71,3 +71,24 @@ class ODE_ThrownObject(nn.Module):
         dx[:2] = x[2:]
         dx[3] = self.g
         return dx
+
+
+class ODE_BouncingBallDrop_CVDL(nn.Module):
+
+    def __init__(self, elasticity=None):
+        super().__init__()
+        if elasticity is None:
+            elasticity = torch.tensor(1.0)
+        self.elasticity = nn.Parameter(elasticity, requires_grad=True)
+        self.register_buffer('g', torch.tensor(9.81))
+
+    def forward(self, t, x):
+        dx = torch.zeros_like(x)
+        dx[0] = x[2]
+        dx[1] = x[3]
+        dx[3] = self.g
+        # if x[1] > 29.0 / 32.0:
+        #     # this is change in velocity, so need to first zero the velocity (-x[1])
+        #     # and then apply the elasticity
+        #     dx[3] = - self.elasticity * x[3] - x[3]
+        return dx

@@ -32,7 +32,7 @@ default_experiment_args = {
     'bouncing_ball_drop': {
         'r': 3.0,
         'g': 9.81,
-        'elasticity': 0.5,
+        'elasticity': 0.9,
     },
     'ball_throw': {
         'r': 3.0,
@@ -251,6 +251,7 @@ def generate_bouncing_ball_drop_sequence(args):
 
         rr, cc = disk((args.img_size - int(clamped_height), args.img_size // 2), args.r)
         frame[rr, cc, :] = (255, 0, 0)
+        mask[rr, cc] = 1
         frame = frame.astype(np.uint8)
 
         sequence.append(frame)

@@ -165,6 +165,13 @@ def estimate_initial_vals_sliding_block_cvdl(masks, coords):
         'p0': center1
     }
 
+def estimate_initial_vals_bouncing_ball_drop_cvdl(masks, coords):
+    center1 = torch.mean(coords[masks[0].flatten() > 0], dim=0)
+
+    return {
+        'p0': center1
+    }
+
 
 def estimate_initial_vals_ball(masks, coords, tspan):
     center1 = torch.mean(coords[masks[0].flatten() > 0], dim=0)

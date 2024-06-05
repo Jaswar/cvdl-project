@@ -19,6 +19,7 @@ data/datasets/sliding_block/*
 
 out/pendulum/*
 out/sliding_block/*
+out/bouncing_ball_drop/*
 
 
 **/.ipynb_checkpoints/
