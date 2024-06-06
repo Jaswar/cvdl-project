@@ -87,8 +87,8 @@ class ODE_BouncingBallDrop_CVDL(nn.Module):
         dx[0] = x[2]
         dx[1] = x[3]
         dx[3] = self.g
-        # if x[1] > 29.0 / 32.0:
-        #     # this is change in velocity, so need to first zero the velocity (-x[1])
-        #     # and then apply the elasticity
-        #     dx[3] = - self.elasticity * x[3] - x[3]
+        if x[1] > 29.0 / 32.0:
+            # this is change in velocity, so need to first zero the velocity (-x[1])
+            # and then apply the elasticity
+            dx[3] = - self.elasticity * x[3] - x[3]
         return dx
