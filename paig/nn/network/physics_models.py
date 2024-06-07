@@ -263,7 +263,8 @@ class PhysicsNet(BaseNet):
                 # Setting it to log(2.0) makes the attention window half the size, which might make
                 # it easier for the model to discover objects in some cases.
                 # I haven't found this to make a consistent difference though. 
-                logsigma = tf.get_variable("logsigma", shape=[], initializer=tf.constant_initializer(np.log(1.0)), trainable=False)
+                logsigma = tf.get_variable("logsigma", shape=[], initializer=tf.constant_initializer(np.log(1.0)), trainable=True)
+                position = tf.get_variable("position", shape=[2], initializer=tf.constant_initializer([0.0, 0.0]), trainable=False)
                 sigma = tf.exp(logsigma)
 
                 template = variable_from_network([self.n_objs, tmpl_size, tmpl_size, 1])
@@ -282,10 +283,10 @@ class PhysicsNet(BaseNet):
                     if self.task == 'pendulum':
                         theta0 = sigma * tf.math.cos(loc[:, 0])
                         theta1 = sigma * (-tf.math.sin(loc[:, 0]))
-                        theta2 = tf.tile(c2t([0.0]), [tf.shape(inp)[0]])  # center of attention in the middle
+                        theta2 = tf.tile(tf.expand_dims(position[0], 0), [tf.shape(inp)[0]])  # center of attention in the middle
                         theta3 = sigma * tf.math.sin(loc[:, 0])
                         theta4 = sigma * tf.math.cos(loc[:, 0])
-                        theta5 = tf.tile(c2t([0.0]), [tf.shape(inp)[0]])  # center of attention in the middle
+                        theta5 = tf.tile(tf.expand_dims(position[1], 0), [tf.shape(inp)[0]])  # center of attention in the middle
                         theta = tf.stack([theta0, theta1, theta2, theta3, theta4, theta5], axis=1)
                     elif self.task == 'pendulum_scale':
                         scale = self.rollout_cell.get_projection(loc)

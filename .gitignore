@@ -19,7 +19,7 @@ data/datasets/sliding_block/*
 
 data/datasets/archive
 
-out/pendulum/*
+out/pendulum_real/*
 out/sliding_block/*
 out/bouncing_ball_drop/*
 out/ball_throw/*
