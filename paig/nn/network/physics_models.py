@@ -431,7 +431,7 @@ class PhysicsNet(BaseNet):
             fig.tight_layout()
             fig.savefig(os.path.join(self.save_dir, "example%d.jpg"%i))
 
-            if hasattr(self, 'pos_vel_seq'):
+            if hasattr(self, 'pos_vel_seq') and 'pos' in batch_x:
                 pos = pos_vel_seq[i, :, 0]
                 actual_pos = batch_x['pos'][i, self.input_steps-1:]
 

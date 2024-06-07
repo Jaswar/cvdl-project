@@ -65,8 +65,8 @@ data_file, test_data_file, cell_type, seq_len, test_seq_len, input_steps, pred_s
         "spring_ode_cell",
         12, 30, 3, 7, 64*64),
     "pendulum": (
-        "pendulum/pendulum_sl42.npz",
-        "pendulum/pendulum_sl42.npz",
+        "pendulum/pendulum_real_sl42.npz",
+        "pendulum/pendulum_real_sl42.npz",
         "pendulum_cell",
         12, 42, 4, 6, 32*32),
     "pendulum_scale": (
