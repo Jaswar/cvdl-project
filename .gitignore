@@ -10,7 +10,7 @@ data/datasets/ball_throw/*
 data/datasets/bouncing_ball_drop/*
 data/datasets/bouncing/*
 data/datasets/mnist_spring_color/*
-data/datasets/pendulum/*
+data/datasets/pendulum*/*
 data/datasets/pendulum_intensity/*
 data/datasets/pendulum_scale/*
 data/datasets/spring_color/*
