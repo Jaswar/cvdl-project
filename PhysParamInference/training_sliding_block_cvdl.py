@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 CONFIG_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "configs")
 
 
-@hydra.main(config_path=CONFIG_DIR, config_name="sliding_block_cvdl")
+@hydra.main(config_path=CONFIG_DIR, config_name="sliding_block_real_cvdl")
 def main(cfg: DictConfig):
     if torch.cuda.is_available():
         device = "cuda"

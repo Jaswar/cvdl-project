@@ -158,12 +158,8 @@ def estimate_initial_vals_sliding_block(masks, coords):
 
 
 def estimate_initial_vals_sliding_block_cvdl(masks, coords):
-    center1 = torch.mean(coords[masks[0].flatten() > 0], dim=0)
+    return estimate_initial_vals_sliding_block(masks, coords)
 
-    return {
-        'alpha': torch.tensor(0.0),
-        'p0': center1
-    }
 
 def estimate_initial_vals_ball_throw_cvdl(masks, coords, tspan):
     return estimate_initial_vals_ball(masks, coords, tspan)

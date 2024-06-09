@@ -30,8 +30,8 @@ def main(args):
         print(f'Processing {video}')
         video_path = os.path.join(args.dir, video)
         masks_path = os.path.join(args.dir, video.replace('.mp4', '_mask.avi'))
-        frames = read_video(video_path, args.img_size)
-        mask = read_video(masks_path, args.img_size)
+        frames = read_video(video_path, args.img_size)[7::2]
+        mask = read_video(masks_path, args.img_size)[7::2]
 
         # convert masks to binary
         red = mask[..., 0]
@@ -52,7 +52,7 @@ def main(args):
     test_size = int(args.test_split * len(sequences))
 
     dataset_path = os.path.join(args.dest, args.experiment)
-    compressed_path = os.path.join(dataset_path, f'{args.experiment}_real_sl{args.seq_len}.npz')
+    compressed_path = os.path.join(dataset_path, f'{args.experiment}_sl{args.seq_len}.npz')
     np.savez_compressed(compressed_path,
                         train_x={'frames': sequences[:train_size],
                                  'masks': masks[:train_size]},
@@ -90,7 +90,7 @@ if __name__ == '__main__':
                         help='Path to the directory containing videos and masks')
     parser.add_argument('--dest', type=str, default='data/datasets',
                         help='Path to the directory where the dataset will be saved')
-    parser.add_argument('--img_size', type=int, default=32, help='Size of the images')
+    parser.add_argument('--img_size', type=int, default=480, help='Size of the images')
     parser.add_argument('--seq_len', type=int, default=42, help='Number of frames to consider as a sequence')
     parser.add_argument('--val_split', type=float, default=0.1, help='Fraction of the data to use as validation')
     parser.add_argument('--test_split', type=float, default=0.1, help='Fraction of the data to use as validation')
