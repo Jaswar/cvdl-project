@@ -5,17 +5,19 @@ import tensorflow as tf
 
 class DataIterator:
 
-    def __init__(self, X, Y=None):
+    def __init__(self, X, Y=None, shuffle=True):
         self.X = X
         self.Y = Y
 
+        self.shuffle = shuffle
         self.num_examples = self.X['frames'].shape[0]
         self.epochs_completed = 0
         self.indices = np.arange(self.num_examples)
         self.reset_iteration()
 
     def reset_iteration(self):
-        np.random.shuffle(self.indices)
+        if self.shuffle:
+            np.random.shuffle(self.indices)
         self.start_idx = 0
 
     def get_epoch(self):
@@ -82,5 +84,5 @@ def get_iterators(file, training_steps, pred_steps, conv=False, datapoints=0, te
 
     train_it = DataIterator(X=data['train_x'])
     valid_it = DataIterator(X=data["valid_x"])
-    test_it = DataIterator(X=data["test_x"])
+    test_it = DataIterator(X=data["test_x"], shuffle=False)
     return train_it, valid_it, test_it

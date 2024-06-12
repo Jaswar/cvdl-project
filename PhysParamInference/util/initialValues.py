@@ -151,6 +151,9 @@ def estimate_initial_vals_sliding_block(masks, coords):
     # cosy with x right, y down, therefore positive rotation is clockwise)
     alpha = torch.sign(diff[0]) * torch.acos(torch.abs(diff[0]) / torch.norm(diff))
 
+    if torch.isnan(alpha):
+        alpha = torch.tensor(0.)
+
     return {
         "alpha": alpha,
         "p0": center1

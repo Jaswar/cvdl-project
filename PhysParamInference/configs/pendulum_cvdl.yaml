@@ -54,11 +54,10 @@ optimizer:
 
 data:
   data_root: /home/jan/Documents/TUDelftMSc/CVDL/project/project/data/datasets
-  path_data: 'pendulum_real/pendulum_real_sl42.npz'
+  path_data: 'pendulum/pendulum_sl42.npz'
   batch_idx: 0
   training_length: 12
   prediction_length: 42
-  dt: 0.017
 
 dataloader:
   batch_size: 65536

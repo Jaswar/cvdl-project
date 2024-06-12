@@ -10,12 +10,12 @@ class ODE_Pendulum(nn.Module):
         if use_damping:
             self.c = nn.Parameter(c, requires_grad=True)
         self.l_pendulum = nn.Parameter(l_pendulum, requires_grad=True)
-        self.register_buffer('g', torch.tensor(9.81))
+        self.g = nn.Parameter(torch.tensor(1.0), requires_grad=True)
 
     def forward(self, t, x):
         dx = torch.zeros_like(x)
         dx[0] = x[1]
-        dx[1] = - self.g/self.l_pendulum*torch.sin(x[0])
+        dx[1] = - torch.exp(self.g)/self.l_pendulum*torch.sin(x[0])
         if self.use_damping:
             dx[1] = dx[1] - self.c*x[1]
         return dx
@@ -52,24 +52,24 @@ class ODE_SlidingBlock(nn.Module):
 
         self.alpha = nn.Parameter(alpha, requires_grad=True)
         self.mu = nn.Parameter(mu, requires_grad=True)
-        self.register_buffer('g', torch.tensor(9.81))
+        self.g = nn.Parameter(torch.tensor(1.0), requires_grad=True)
 
     def forward(self, t, x):
         dx = torch.zeros_like(x)
         dx[0] = x[1]
-        dx[1] = self.g * (torch.sin(self.alpha) - self.mu * torch.cos(self.alpha))
+        dx[1] = torch.exp(self.g) * (torch.sin(self.alpha) - self.mu * torch.cos(self.alpha))
         return dx
 
 
 class ODE_ThrownObject(nn.Module):
     def __init__(self):
         super().__init__()
-        self.register_buffer('g', torch.tensor(9.81))
+        self.g = nn.Parameter(torch.tensor(1.0), requires_grad=True)
 
     def forward(self, t, x):
         dx = torch.zeros_like(x)
         dx[:2] = x[2:]
-        dx[3] = self.g
+        dx[3] = torch.exp(self.g)
         return dx
 
 
@@ -80,14 +80,15 @@ class ODE_BouncingBallDrop_CVDL(nn.Module):
         if elasticity is None:
             elasticity = torch.tensor(1.0)
         self.elasticity = nn.Parameter(elasticity, requires_grad=True)
-        self.register_buffer('g', torch.tensor(9.81))
+        self.g = nn.Parameter(torch.tensor(1.0), requires_grad=True)
+        self.r = nn.Parameter(torch.tensor(3.0), requires_grad=False)
 
     def forward(self, t, x):
         dx = torch.zeros_like(x)
         dx[0] = x[2]
         dx[1] = x[3]
-        dx[3] = self.g
-        if x[1] > 29.0 / 32.0:
+        dx[3] = torch.exp(self.g)
+        if x[1] > 32.0 - self.r:
             # this is change in velocity, so need to first zero the velocity (-x[1])
             # and then apply the elasticity
             dx[3] = - self.elasticity * x[3] - x[3]
