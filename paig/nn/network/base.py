@@ -189,12 +189,12 @@ class BaseNet:
 
         eval_metrics_results = {k:[] for k in self.eval_metrics.keys()}
         eval_outputs = {"input":[], "output":[]}
-        
-        eval_iterator = self.get_iterator(type)
-        eval_iterator.reset_epoch()
 
         if type == 'test':
             self.eval_test_video()
+
+        eval_iterator = self.get_iterator(type)
+        eval_iterator.reset_epoch()
 
         while eval_iterator.get_epoch() < 1:
             if eval_iterator.num_examples < 100:
@@ -211,7 +211,7 @@ class BaseNet:
             eval_outputs["output"].append(results["output"])
 
         eval_metrics_results = {k:np.mean(v, axis=0) for k,v in eval_metrics_results.items()}
-        np.savez_compressed(os.path.join(self.save_dir, "outputs.npz"), 
+        np.savez_compressed(os.path.join(self.save_dir, "outputs.npz"),
                             input=np.concatenate(eval_outputs["input"], axis=0),
                             output=np.concatenate(eval_outputs["output"], axis=0))
 

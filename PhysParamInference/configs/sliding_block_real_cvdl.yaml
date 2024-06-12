@@ -51,10 +51,10 @@ optimizer:
 data:
   data_root: /home/jan/Documents/TUDelftMSc/CVDL/project/project/data/datasets
   path_data: 'sliding_block_real/sliding_block_real_sl42.npz'
-  batch_idx: 2
+  batch_idx: 0
   training_length: 12
   prediction_length: 42
-  dt: 0.033
+  dt: 0.017
 
 dataloader:
   batch_size: 65536

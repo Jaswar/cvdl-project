@@ -24,7 +24,7 @@ class pendulum_cell(ode_cell):
         h_depth = self._num_units
         assert h_depth == input_depth
 
-        self.dt = self.add_variable("dt_x", shape=[], initializer=tf.constant_initializer(0.017), trainable=False)
+        self.dt = self.add_variable("dt_x", shape=[], initializer=tf.constant_initializer(0.3), trainable=False)
         self.length = self.add_variable("length", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
         self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
         self.built = True
@@ -136,7 +136,7 @@ class bouncing_ball_drop_cell(ode_cell):
             x = x + self.dt / 10 * vx
 
             vy = tf.where(tf.greater(y, 32 - self.r), -vy * self.elasticity, vy)
-        y = tf.clip_by_value(y, self.r, 32 - self.r)
+            y = tf.clip_by_value(y, self.r, 32 - self.r)
         vels = tf.stack([vx, vy], axis=1)
         poss = tf.stack([x, y], axis=1)
         return poss, vels

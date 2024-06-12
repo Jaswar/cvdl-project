@@ -30,8 +30,9 @@ def main(args):
         print(f'Processing {video}')
         video_path = os.path.join(args.dir, video)
         masks_path = os.path.join(args.dir, video.replace('.mp4', '_mask.avi'))
-        frames = read_video(video_path, args.img_size)[7::2]
-        mask = read_video(masks_path, args.img_size)[7::2]
+        # disregard first five frames for the sliding block experiment
+        frames = read_video(video_path, args.img_size)
+        mask = read_video(masks_path, args.img_size)
 
         # convert masks to binary
         red = mask[..., 0]
@@ -47,9 +48,10 @@ def main(args):
             masks.append(mask[start:end])
     sequences = np.array(sequences)
     masks = np.array(masks)
-    train_size = int((1 - args.val_split - args.test_split) * len(sequences))
-    val_size = int(args.val_split * len(sequences))
-    test_size = int(args.test_split * len(sequences))
+    val_size = max(int(args.val_split * len(sequences)), 1)
+    test_size = max(int(args.test_split * len(sequences)), 1)
+    train_size = len(sequences) - val_size - test_size
+    assert train_size > 0 and val_size > 0 and test_size > 0
 
     dataset_path = os.path.join(args.dest, args.experiment)
     compressed_path = os.path.join(dataset_path, f'{args.experiment}_sl{args.seq_len}.npz')
@@ -63,7 +65,7 @@ def main(args):
 
     norm = plt.Normalize(0.0, 1.0)
 
-    gallery_path = os.path.join(dataset_path, f'{args.experiment}_real_sl{args.seq_len}_samples_masks.jpg')
+    gallery_path = os.path.join(dataset_path, f'{args.experiment}_sl{args.seq_len}_samples_masks.jpg')
     fig, ax = plt.subplots(figsize=(sequences.shape[1], 10))
     masks = np.expand_dims(masks, -1)
     result = gallery(np.concatenate(masks[:10]), ncols=sequences.shape[1])
@@ -73,7 +75,7 @@ def main(args):
     fig.tight_layout()
     fig.savefig(gallery_path)
 
-    gallery_path = os.path.join(dataset_path, f'{args.experiment}_real_sl{args.seq_len}_samples_frames.jpg')
+    gallery_path = os.path.join(dataset_path, f'{args.experiment}_sl{args.seq_len}_samples_frames.jpg')
     fig, ax = plt.subplots(figsize=(sequences.shape[1], 10))
     result = gallery(np.concatenate(sequences[:10] / 255), ncols=sequences.shape[1])
     ax.imshow(np.squeeze(result), interpolation='nearest', cmap=cm.Greys_r, norm=norm)
@@ -90,7 +92,7 @@ if __name__ == '__main__':
                         help='Path to the directory containing videos and masks')
     parser.add_argument('--dest', type=str, default='data/datasets',
                         help='Path to the directory where the dataset will be saved')
-    parser.add_argument('--img_size', type=int, default=480, help='Size of the images')
+    parser.add_argument('--img_size', type=int, default=32, help='Size of the images')
     parser.add_argument('--seq_len', type=int, default=42, help='Number of frames to consider as a sequence')
     parser.add_argument('--val_split', type=float, default=0.1, help='Fraction of the data to use as validation')
     parser.add_argument('--test_split', type=float, default=0.1, help='Fraction of the data to use as validation')

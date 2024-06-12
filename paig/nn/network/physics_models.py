@@ -42,10 +42,13 @@ COORD_UNITS = {
     "3bp_color": 12,
     "mnist_spring_color": 8,
     "pendulum": 2,
+    "pendulum_real": 2,
     'pendulum_scale': 2,
     'pendulum_intensity': 2,
     'sliding_block': 4,
+    'sliding_block_real': 4,
     'bouncing_ball_drop': 4,
+    'bouncing_ball_drop_real': 4,
     'ball_throw': 4
 }
 
@@ -264,7 +267,7 @@ class PhysicsNet(BaseNet):
                 # it easier for the model to discover objects in some cases.
                 # I haven't found this to make a consistent difference though. 
                 logsigma = tf.get_variable("logsigma", shape=[], initializer=tf.constant_initializer(np.log(1.0)), trainable=True)
-                position = tf.get_variable("position", shape=[2], initializer=tf.constant_initializer([0.0, -1.0]), trainable=False)
+                position = tf.get_variable("position", shape=[2], initializer=tf.constant_initializer([0.0, 0.0]), trainable=False)
                 sigma = tf.exp(logsigma)
 
                 template = variable_from_network([self.n_objs, tmpl_size, tmpl_size, 1])
@@ -280,7 +283,7 @@ class PhysicsNet(BaseNet):
                 out_temp_cont = []
                 for loc, join in zip(tf.split(inp, self.n_objs, -1), tf.split(joint, self.n_objs, 0)):
                     theta = None
-                    if self.task == 'pendulum':
+                    if self.task == 'pendulum' or self.task == 'pendulum_real':
                         theta0 = sigma * tf.math.cos(loc[:, 0])
                         theta1 = sigma * (-tf.math.sin(loc[:, 0]))
                         theta2 = sigma * tf.expand_dims(position[0], 0) * tf.sin(loc[:, 0])
@@ -405,6 +408,7 @@ class PhysicsNet(BaseNet):
         if hasattr(self, 'pos_vel_seq'):
             pos_vel_seq = res[2]
         output_seq = np.concatenate([batch_x['frames'][:,:self.input_steps], output_seq], axis=1)
+        batch_size = min(recons_seq.shape[0], batch_size)
         recons_seq = np.concatenate([recons_seq, np.zeros((batch_size, self.extrap_steps)+recons_seq.shape[2:])], axis=1)
 
         # Plot a grid with prediction sequences

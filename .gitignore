@@ -7,7 +7,7 @@ venv/
 # some datasets are from the physics-as-inverse-graphics paper
 data/datasets/3bp_color/*
 data/datasets/ball_throw/*
-data/datasets/bouncing_ball_drop/*
+data/datasets/bouncing_ball_drop*/*
 data/datasets/bouncing/*
 data/datasets/mnist_spring_color/*
 data/datasets/pendulum*/*
