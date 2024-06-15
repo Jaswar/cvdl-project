@@ -30,9 +30,10 @@ def main(args):
         print(f'Processing {video}')
         video_path = os.path.join(args.dir, video)
         masks_path = os.path.join(args.dir, video.replace('.mp4', '_mask.avi'))
-        # disregard first five frames for the sliding block experiment
-        frames = read_video(video_path, args.img_size)
-        mask = read_video(masks_path, args.img_size)
+        # disregard first five frames for the sliding block experiment and bouncing ball real
+        # the masks might be empty for these frames hence the skip is necessary
+        frames = read_video(video_path, args.img_size)[5:]
+        mask = read_video(masks_path, args.img_size)[5:]
 
         # convert masks to binary
         red = mask[..., 0]

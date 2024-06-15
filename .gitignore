@@ -17,7 +17,7 @@ data/datasets/spring_color/*
 data/datasets/spring_color_half/*
 data/datasets/sliding_block*/*
 
-data/datasets/archive
+data/datasets/archive*
 
 out/pendulum*/*
 out/sliding_block*/*

@@ -40,7 +40,7 @@ def main(args):
     ax.set_yticks([16.7, 50, 83.3])
     ax.set_yticklabels(['GT', 'PAIG', 'PPI'])
     fig.tight_layout()
-    fig.savefig(gallery_path)
+    fig.savefig(gallery_path, bbox_inches='tight', pad_inches=0, transparent=True)
 
     psnr_paig = compute_psnr_video(gt, pred_paig_data)
     psnr_ppi = compute_psnr_video(gt, pred_ppi_data)
