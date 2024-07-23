@@ -26,7 +26,7 @@ def main(cfg: DictConfig):
         device = "cpu"
 
     # Seed
-    setSeeds(cfg.seed)
+    # setSeeds(cfg.seed)
 
     # Load the datasets
     train_data = ImageDataset_CVDL(
@@ -61,7 +61,7 @@ def main(cfg: DictConfig):
 
     # Seed again to ensure consistent initialization
     # (different architectures before will change the seed at this point)
-    setSeeds(cfg.seed)
+    # setSeeds(cfg.seed)
     # this scene representation rotates by alpha, which is not done in the dataset
     # for some reason removing the rotation decrease performance, hence we kept the rotation
     model.add_thrownObject(

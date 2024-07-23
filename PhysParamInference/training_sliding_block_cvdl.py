@@ -18,7 +18,7 @@ log = logging.getLogger(__name__)
 CONFIG_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), "configs")
 
 
-@hydra.main(config_path=CONFIG_DIR, config_name="sliding_block_real_cvdl")
+@hydra.main(config_path=CONFIG_DIR, config_name="sliding_block_cvdl")
 def main(cfg: DictConfig):
     if torch.cuda.is_available():
         device = "cuda"
@@ -26,7 +26,7 @@ def main(cfg: DictConfig):
         device = "cpu"
 
     # Seed
-    setSeeds(cfg.seed)
+    # setSeeds(cfg.seed)
 
     # Load the datasets
     train_data = ImageDataset_CVDL(
@@ -62,7 +62,7 @@ def main(cfg: DictConfig):
 
     # Seed again to ensure consistent initialization
     # (different architectures before will change the seed at this point)
-    setSeeds(cfg.seed)
+    # setSeeds(cfg.seed)
     # this scene representation rotates by alpha, which is not done in the dataset
     # for some reason removing the rotation decrease performance, hence we kept the rotation
     model.add_slidingBlock(
