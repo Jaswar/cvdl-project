@@ -25,8 +25,8 @@ class pendulum_cell(ode_cell):
         assert h_depth == input_depth
 
         self.dt = self.add_variable("dt_x", shape=[], initializer=tf.constant_initializer(0.3), trainable=False)
-        self.length = self.add_variable("length", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
-        self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
+        self.length = self.add_variable("length", shape=[], initializer=tf.constant_initializer(10.0), trainable=False)
+        self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(2.28340227358), trainable=False)
         self.built = True
 
     def call(self, poss, vels):
@@ -120,10 +120,10 @@ class bouncing_ball_drop_cell(ode_cell):
         assert h_depth == input_depth
 
         self.dt = self.add_variable("dt_x", shape=[], initializer=tf.constant_initializer(0.3), trainable=False)
-        self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
+        self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(2.28340227358), trainable=False)
         # the model has no way of backpropagating through the radius, so set it to the correct value
         self.r = self.add_variable("r", shape=[], initializer=tf.constant_initializer(3.0), trainable=False)
-        self.elasticity = self.add_variable("elasticity", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
+        self.elasticity = self.add_variable("elasticity", shape=[], initializer=tf.constant_initializer(0.9), trainable=False)
         self.built = True
 
     def call(self, poss, vels):
@@ -153,7 +153,7 @@ class ball_throw_cell(ode_cell):
         assert h_depth == input_depth
 
         self.dt = self.add_variable("dt_x", shape=[], initializer=tf.constant_initializer(0.05), trainable=False)
-        self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
+        self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(2.28340227358), trainable=False)
         self.r = self.add_variable("r", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
         self.built = True
 
@@ -189,9 +189,9 @@ class sliding_block_cell(ode_cell):
         assert h_depth == input_depth
 
         self.dt = self.add_variable("dt_x", shape=[], initializer=tf.constant_initializer(0.3), trainable=False)
-        self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(1.0), trainable=True)
-        self.inclination = self.add_variable("inclination", shape=[], initializer=tf.constant_initializer(0.0), trainable=True)
-        self.friction = self.add_variable("friction", shape=[], initializer=tf.constant_initializer(0.0), trainable=True)
+        self.g = self.add_variable("g", shape=[], initializer=tf.constant_initializer(2.28340227358), trainable=False)
+        self.inclination = self.add_variable("inclination", shape=[], initializer=tf.constant_initializer(np.pi / 13), trainable=False)
+        self.friction = self.add_variable("friction", shape=[], initializer=tf.constant_initializer(0.2), trainable=False)
         self.built = True
 
     def call(self, poss, vels):

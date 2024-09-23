@@ -12,7 +12,8 @@ def compute_psnr_video(gt, pred):
 
 
 def main(args):
-    gt_data = np.load(os.path.join(args.gt_file, args.experiment, f'{args.experiment}_sl{args.total_len}.npz'),
+    gt_experiment = args.experiment.replace('_perfect', '')
+    gt_data = np.load(os.path.join(args.gt_file, gt_experiment, f'{gt_experiment}_sl{args.total_len}.npz'),
                       allow_pickle=True)
     gt = gt_data['train_x'].item()['frames'][0]
     gt = gt[-args.test_seq_len:]

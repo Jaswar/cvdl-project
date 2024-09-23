@@ -9,8 +9,8 @@ class ODE_Pendulum(nn.Module):
         self.use_damping = use_damping
         if use_damping:
             self.c = nn.Parameter(c, requires_grad=True)
-        self.l_pendulum = nn.Parameter(l_pendulum, requires_grad=True)
-        self.g = nn.Parameter(torch.tensor(1.0), requires_grad=True)
+        self.l_pendulum = nn.Parameter(torch.tensor(10.0), requires_grad=False)
+        self.g = nn.Parameter(torch.tensor(2.28340227358), requires_grad=False)
 
     def forward(self, t, x):
         dx = torch.zeros_like(x)
@@ -50,9 +50,9 @@ class ODE_SlidingBlock(nn.Module):
     def __init__(self, mu=torch.tensor(0.), alpha=torch.tensor(0.)):
         super().__init__()
 
-        self.alpha = nn.Parameter(alpha, requires_grad=True)
-        self.mu = nn.Parameter(mu, requires_grad=True)
-        self.g = nn.Parameter(torch.tensor(1.0), requires_grad=True)
+        self.alpha = nn.Parameter(torch.tensor(torch.pi / 13), requires_grad=False)
+        self.mu = nn.Parameter(torch.tensor(0.2), requires_grad=False)
+        self.g = nn.Parameter(torch.tensor(2.28340227358), requires_grad=False)
 
     def forward(self, t, x):
         dx = torch.zeros_like(x)
@@ -64,7 +64,7 @@ class ODE_SlidingBlock(nn.Module):
 class ODE_ThrownObject(nn.Module):
     def __init__(self):
         super().__init__()
-        self.g = nn.Parameter(torch.tensor(1.0), requires_grad=True)
+        self.g = nn.Parameter(torch.tensor(2.28340227358), requires_grad=False)
 
     def forward(self, t, x):
         dx = torch.zeros_like(x)
@@ -79,8 +79,8 @@ class ODE_BouncingBallDrop_CVDL(nn.Module):
         super().__init__()
         if elasticity is None:
             elasticity = torch.tensor(1.0)
-        self.elasticity = nn.Parameter(elasticity, requires_grad=True)
-        self.g = nn.Parameter(torch.tensor(1.0), requires_grad=True)
+        self.elasticity = nn.Parameter(torch.tensor(0.9), requires_grad=False)
+        self.g = nn.Parameter(torch.tensor(2.28340227358), requires_grad=False)
         self.r = nn.Parameter(torch.tensor(3.0), requires_grad=False)
 
     def forward(self, t, x):

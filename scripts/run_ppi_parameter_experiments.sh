@@ -1,4 +1,4 @@
-conda activate PhysParamInference
+conda activate physParamInference
 
 cd ../PhysParamInference
 

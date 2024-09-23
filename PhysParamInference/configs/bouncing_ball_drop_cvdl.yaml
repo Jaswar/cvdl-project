@@ -23,7 +23,7 @@ scene:
 
 ode:
   use_adjoint: False
-  elasticity_init: 0.9
+  elasticity_init: 1.0
 
 online_training:
   enable: True

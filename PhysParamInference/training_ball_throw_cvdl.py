@@ -26,7 +26,7 @@ def main(cfg: DictConfig):
         device = "cpu"
 
     # Seed
-    # setSeeds(cfg.seed)
+    setSeeds(cfg.seed)
 
     # Load the datasets
     train_data = ImageDataset_CVDL(
